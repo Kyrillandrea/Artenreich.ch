@@ -20,6 +20,12 @@ veröffentlicht: **https://kyrillandrea.github.io/Artenreich.ch/**
   gelingt das nicht, lädt die Demo fehlende Bilder direkt von artenreich.ch.
 - Einmalig nötig: GitHub → Repository → **Settings → Pages → Build and deployment → Source: «GitHub Actions»**.
 
+Als **einzelne HTML-Datei** (Startseite mit allen Effekten, per Doppelklick offline vorführbar):
+
+```bash
+npm run demo:file   # → dist/artenreich-demo.html
+```
+
 Lokal genau wie auf GitHub Pages testen:
 
 ```bash
