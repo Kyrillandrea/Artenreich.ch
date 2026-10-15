@@ -3,13 +3,21 @@
 import Media from './Media.astro';
 import Icon from './Icon.astro';
 import { philosophy } from '../data/content';
+import { url } from '../lib/url';
+import BloomHeading from './BloomHeading.astro';
 ---
 
 <section class="habitat section" id="philosophie" aria-labelledby="habitat-title">
   <div class="container grid-12 habitat__grid">
-    <div class="habitat__head" data-reveal>
-      <p class="eyebrow">Unsere Haltung</p>
-      <h2 id="habitat-title" class="h2 habitat__title">Ein Garten. <em>Unzählige</em> Lebensräume.</h2>
+    <div class="habitat__head">
+      <p class="eyebrow habitat__eyebrow">Unsere Haltung</p>
+      <BloomHeading
+        id="habitat-title"
+        lines={[
+          [{ text: 'Ein' }, { text: 'Garten.' }],
+          [{ text: 'Unzählige', em: true }, { text: 'Lebensräume.' }],
+        ]}
+      />
     </div>
 
     <figure class="habitat__main" data-reveal>
@@ -23,7 +31,7 @@ import { philosophy } from '../data/content';
     <div class="habitat__text" data-reveal style="--reveal-delay:120ms">
       <p class="lead">{philosophy[0]}</p>
       <p class="habitat__body">{philosophy[2]}</p>
-      <a class="text-link" href="/naturgarten/">
+      <a class="text-link" href={url('/naturgarten/')}>
         Mehr über den Naturgarten
         <Icon name="arrow-right" size={18} />
       </a>
@@ -47,14 +55,10 @@ import { philosophy } from '../data/content';
   }
   .habitat__head {
     grid-column: 1 / -1;
-  }
-  .habitat__title {
-    margin-top: 20px;
-    max-width: 12ch;
-  }
-  .habitat__title em {
-    font-style: italic;
-    color: var(--c-sage-ink);
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin-bottom: clamp(16px, 4vw, 64px);
   }
   .habitat__main {
     grid-column: 1 / -1;
@@ -95,9 +99,6 @@ import { philosophy } from '../data/content';
     }
   }
   @media (min-width: 1100px) {
-    .habitat__head {
-      grid-column: 1 / span 9;
-    }
     .habitat__main {
       grid-column: 1 / span 5;
     }

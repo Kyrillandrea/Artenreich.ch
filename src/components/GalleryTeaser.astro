@@ -4,6 +4,7 @@ import Media from './Media.astro';
 import Icon from './Icon.astro';
 import { galleryTeaser } from '../data/content';
 import { getMediaItem } from '../lib/media';
+import { url } from '../lib/url';
 ---
 
 <section class="teaser section" id="impressionen" aria-labelledby="teaser-title">
@@ -13,7 +14,7 @@ import { getMediaItem } from '../lib/media';
         <p class="eyebrow">Impressionen</p>
         <h2 id="teaser-title" class="h2 teaser__title">Gärten, die leben.</h2>
       </div>
-      <a class="text-link teaser__all" href="/impressionen/">
+      <a class="text-link teaser__all" href={url('/impressionen/')}>
         Alle Impressionen ansehen
         <Icon name="arrow-right" size={18} />
       </a>
@@ -23,7 +24,7 @@ import { getMediaItem } from '../lib/media';
       {
         galleryTeaser.map((id, i) => (
           <li class={`teaser__item teaser__item--${i + 1}`} data-reveal style={`--reveal-delay:${(i % 3) * 90}ms`}>
-            <a class="teaser__link" href={`/impressionen/#${id}`}>
+            <a class="teaser__link" href={url(`/impressionen/#${id}`)}>
               <span class="frame teaser__frame">
                 <Media id={id} sizes="(min-width: 1100px) 40vw, (min-width: 700px) 50vw, 100vw" widths={[480, 720, 960, 1280]} />
               </span>

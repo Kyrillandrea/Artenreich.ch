@@ -2,6 +2,7 @@
 import Icon from './Icon.astro';
 import { projectTypes, timeframes, limits } from '../lib/inquiry';
 import { company } from '../data/site';
+import { url, isDemo } from '../lib/url';
 
 interface Props {
   /** Vorauswahl der Projektart (z. B. auf der Naturpool-Seite) */
@@ -14,10 +15,11 @@ const p = 'anfrage';
 <form
   class="inquiry"
   id={`${p}-form`}
-  action="/api/anfrage/"
+  action={url('/api/anfrage/')}
   method="post"
   data-inquiry-form
   data-mail-to={company.email.address}
+  data-demo={isDemo ? 'true' : undefined}
   aria-describedby={`${p}-required-note`}
 >
   <div class="inquiry__summary" id={`${p}-summary`} tabindex="-1" data-error-summary hidden>
@@ -131,7 +133,7 @@ const p = 'anfrage';
   <input type="hidden" name="t" value="" data-elapsed />
 
   <p class="inquiry__privacy">
-    Informationen zur Bearbeitung Ihrer Angaben finden Sie in der <a href="/datenschutz/">Datenschutzerklärung</a>.
+    Informationen zur Bearbeitung Ihrer Angaben finden Sie in der <a href={url('/datenschutz/')}>Datenschutzerklärung</a>.
   </p>
 
   <div class="inquiry__actions">

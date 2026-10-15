@@ -35,7 +35,7 @@ try {
     for (let i = 0; i < 14; i++) await p.keyboard.press('Tab');
     const inside = await p.evaluate(() => document.querySelector('[data-menu-dialog]').contains(document.activeElement) || document.activeElement === document.body);
     check('Tastaturfokus bleibt im geöffneten Menü', inside);
-    await p.click('[data-menu-dialog] a[href="/naturgarten/"]');
+    await p.click('[data-menu-dialog] a[href$="/naturgarten/"]');
     await p.waitForURL('**/naturgarten/');
     check('Menülink navigiert', p.url().endsWith('/naturgarten/'));
 
@@ -54,9 +54,9 @@ try {
     await ctx.close();
   }
 
-  // --- Jahreszeiten -----------------------------------------------------------
+  // --- Jahreszeiten: Tabs (Tablet-Breite bzw. reduzierte Bewegung) ----------------
   {
-    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const ctx = await browser.newContext({ viewport: { width: 960, height: 900 } });
     const p = await ctx.newPage();
     await p.goto(`${BASE}/#jahreszeiten`, { waitUntil: 'domcontentloaded' });
     check('Jahreszeiten: Tabs aktiv ab 900 px', await p.isVisible('[data-seasons-tablist]'));
@@ -86,6 +86,98 @@ try {
     const stacked = await m.evaluate(() => [...document.querySelectorAll('[data-season]')].every((s) => getComputedStyle(s).visibility === 'visible' && !s.hidden));
     check('Mobil: vier Jahreszeiten als Kapitel untereinander', stacked && !(await m.isVisible('[data-seasons-tablist]')));
     await mctx.close();
+  }
+
+  // --- Technik 03: Jahresrad (scrollgebundene Rotation) ---------------------------
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage();
+    await p.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+    check('Jahresrad aktiv auf Desktop', await p.evaluate(() => document.querySelector('[data-seasons]').classList.contains('is-wheel')));
+    const geo = await p.evaluate(() => {
+      const s = document.querySelector('[data-seasons]');
+      const pin = document.querySelector('[data-seasons-pin]');
+      return {
+        top: s.getBoundingClientRect().top + window.scrollY - parseFloat(getComputedStyle(pin).top),
+        range: s.offsetHeight - pin.offsetHeight,
+      };
+    });
+    const at = async (f) => {
+      await p.evaluate((t) => window.scrollTo({ top: t, behavior: 'instant' }), geo.top + geo.range * f);
+      await p.waitForTimeout(450);
+      return p.evaluate(() => ({
+        rot: getComputedStyle(document.querySelector('[data-dial]')).getPropertyValue('--rot').trim(),
+        active: document.querySelector('[data-season].is-active h3')?.textContent.trim(),
+        pinTop: Math.round(document.querySelector('[data-seasons-pin]').getBoundingClientRect().top),
+      }));
+    };
+    const a0 = await at(0.02);
+    const a1 = await at(0.5);
+    const a2 = await at(1);
+    check('Rad dreht mit dem Scrollen', a0.rot !== a1.rot && a1.rot !== a2.rot, `${a0.rot} → ${a1.rot} → ${a2.rot}`);
+    check('Aktive Jahreszeit folgt der Drehung', a0.active === 'Frühling' && a2.active === 'Winter', `${a0.active} … ${a2.active}`);
+    check('Bühne bleibt beim Scrollen stehen (sticky)', a1.pinTop === a2.pinTop, `${a1.pinTop}/${a2.pinTop}`);
+    await p.evaluate((t) => window.scrollTo({ top: t, behavior: 'instant' }), geo.top);
+    await p.click('#jahreszeiten-tab-herbst');
+    await p.waitForTimeout(1800);
+    check('Tab «Herbst» dreht das Rad zum Herbst', (await p.evaluate(() => document.querySelector('[data-season].is-active h3')?.textContent.trim())) === 'Herbst');
+    await ctx.close();
+  }
+
+  // --- Technik 01, 02, 04, 05 -----------------------------------------------------
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage();
+    await p.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+    const layer = (sel) => p.evaluate((s) => getComputedStyle(document.querySelector(s)).getPropertyValue('--sy').trim(), sel);
+    await p.evaluate(() => window.scrollTo({ top: 400, behavior: 'instant' }));
+    await p.waitForTimeout(300);
+    const back = await layer('.hero__back');
+    const front = await layer('.hero__front--a');
+    check('01 Layered Parallax: Ebenen bewegen sich unterschiedlich', parseFloat(back) > 0 && parseFloat(front) < 0, `hinten ${back}, vorn ${front}`);
+
+    const bloom = async (offset) => {
+      await p.evaluate((o) => {
+        const el = document.querySelector('[data-bloom]');
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - o, behavior: 'instant' });
+      }, offset);
+      await p.waitForTimeout(300);
+      return p.evaluate(() => Number(getComputedStyle(document.querySelector('[data-bloom]')).getPropertyValue('--p')));
+    };
+    const early = await bloom(780);
+    const done = await bloom(150);
+    check('02 Text Reveal: Buchstaben erblühen beim Scrollen', early < 0.5 && done === 1, `${early} → ${done}`);
+    const readable = await p.evaluate(() => document.querySelector('#habitat-title').textContent.includes('Ein Garten. Unzählige Lebensräume.'));
+    check('02 Text Reveal: Überschrift für Screenreader vollständig', readable);
+
+    await p.evaluate(() => document.querySelector('[data-eye]').scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await p.waitForTimeout(300);
+    const box = await p.locator('[data-eye]').boundingBox();
+    await p.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.5);
+    for (let i = 0; i < 8; i++) {
+      await p.mouse.move(box.x + box.width * (0.45 + i * 0.02), box.y + box.height * 0.5);
+      await p.waitForTimeout(160);
+    }
+    const ripples = await p.locator('[data-eye] .ripple').count();
+    await p.mouse.move(box.x - 400, box.y + 20);
+    await p.waitForTimeout(800);
+    const tx = await p.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.eye__pupil')).getPropertyValue('--tx')));
+    check('04 Cursor Tracking: Auge folgt dem Cursor', tx < -5, `${tx.toFixed(1)}px`);
+    check('04 Cursor Tracking: Wellen unter dem Cursor', ripples > 0, `${ripples}`);
+
+    const stackTop = await p.evaluate(() => document.querySelector('[data-stack]').getBoundingClientRect().top + window.scrollY);
+    await p.evaluate((t) => window.scrollTo({ top: t + 1200, behavior: 'instant' }), stackTop);
+    await p.waitForTimeout(400);
+    const stack = await p.evaluate(() => {
+      const items = [...document.querySelectorAll('[data-stack] > li')];
+      return items.map((li) => ({
+        top: Math.round(li.getBoundingClientRect().top),
+        s: Number(getComputedStyle(li.firstElementChild).getPropertyValue('--s') || 1),
+      }));
+    });
+    check('05 Stacking Cards: Karten stapeln sich versetzt', stack[0].top < stack[1].top && stack[1].top - stack[0].top < 40, stack.map((c) => c.top).join('/'));
+    check('05 Stacking Cards: untere Karten treten zurück', stack[0].s < 1 && stack[0].s >= 0.86, stack.map((c) => c.s).join('/'));
+    await ctx.close();
   }
 
   // --- Galerie / Grossansicht -------------------------------------------------
@@ -135,6 +227,12 @@ try {
     check('Reduzierte Bewegung: keine Hero-Animation', state.anim === 'none');
     check('Reduzierte Bewegung: kein Parallax', !state.parallax);
     check('Reduzierte Bewegung: kein Smooth-Scroll', state.smooth === 'auto');
+    const rm = await p.evaluate(() => ({
+      bloom: getComputedStyle(document.querySelector('[data-bloom]')).getPropertyValue('--p').trim(),
+      wheel: document.querySelector('[data-seasons]').classList.contains('is-wheel'),
+      sy: document.querySelector('.hero__back').style.getPropertyValue('--sy'),
+    }));
+    check('Reduzierte Bewegung: Text sofort vollständig, kein Rad, kein Parallax', rm.bloom === '1' && !rm.wheel && !rm.sy, JSON.stringify(rm));
     await ctx.close();
   }
 

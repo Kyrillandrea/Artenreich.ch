@@ -78,6 +78,18 @@ Prüfsummen und Abmessungen stehen nach dem Download in `src/assets/originals/SO
 
 **Summe Kerndateien:** 40 (Soll: 40)
 
+## Vom Auftraggeber gelieferte Poolbilder (5)
+
+Unverändert abgelegt in `src/assets/pool/` (15.10.2026). Herkunft und Nutzungsrechte **nicht bestätigt**.
+
+| ID | Datei | Motiv / Alt-Text | SHA-256 (gekürzt) |
+|---|---|---|---|
+| pool-01 | pool-01.jpg | Naturpool mit Wasserlinie zur Landschaft, Seerosen und Blick auf grüne Hügel. | d53f6278… |
+| pool-02 | pool-02.jpg | Naturpool von oben mit Holzdecks, Seerosen und üppiger Bepflanzung. (wirkt wie Visualisierung) | d24c0d0b… |
+| pool-03 | pool-03.jpg | Schwimmteich mit Seerosen vor Natursteinstufen und einem Wohnhaus mit Holzfassade. | 90a7d99f… |
+| pool-04 | pool-04.jpg | Schwimmteich von oben mit badenden Menschen, Flachwasserzone und Blütenstauden. (Personen erkennbar) | 219dbba3… |
+| pool-05 | pool-05.jpg | Schwimmteich mit Holzdeck und zwei Liegen vor Seen- und Bergkulisse. | 20de496f… |
+
 ## Texte
 
 Alle Originaltexte sind strukturiert gepflegt in:

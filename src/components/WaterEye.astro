@@ -1,0 +1,243 @@
+---
+/**
+ * Technik 04 – Cursor Tracking.
+ * Ein «Wasser-Auge»: Poolbild im Kreis, umgeben von Ringlinien. Pupille, Ringe und Lichtreflex
+ * richten sich nach dem Cursor aus (innere Ringe stärker → Tiefenwirkung), Bewegungen über dem
+ * Wasser erzeugen feine Wellen. Touch: Tippen erzeugt eine Welle. Rein dekorativ.
+ */
+import Media from './Media.astro';
+import type { MediaId } from '../data/media';
+
+interface Props {
+  image: MediaId;
+  class?: string;
+}
+const { image, class: className } = Astro.props;
+const rings = [
+  { r: 172, k: 0.78 },
+  { r: 194, k: 0.64 },
+  { r: 218, k: 0.5 },
+  { r: 244, k: 0.38 },
+  { r: 272, k: 0.26 },
+  { r: 298, k: 0.14 },
+];
+---
+
+<div class:list={['eye', className]} data-eye aria-hidden="true">
+  <svg class="eye__rings" viewBox="-310 -310 620 620" focusable="false">
+    {
+      rings.map((ring, i) => (
+        <circle
+          class="eye__ring"
+          cx="0"
+          cy="0"
+          r={ring.r}
+          data-k={ring.k}
+          stroke="currentColor"
+          stroke-opacity={(0.62 - i * 0.08).toFixed(2)}
+          fill="none"
+          vector-effect="non-scaling-stroke"
+        />
+      ))
+    }
+  </svg>
+  <div class="eye__pupil" data-k="1">
+    <div class="eye__photo" data-photo>
+      <Media id={image} sizes="(min-width: 900px) 30vw, 70vw" widths={[480, 720, 960, 1320]} alt="" />
+    </div>
+    <div class="eye__glint" data-glint></div>
+    <div class="eye__ripples" data-ripples></div>
+  </div>
+</div>
+
+<style>
+  .eye {
+    --size: min(100%, 620px);
+    position: relative;
+    width: var(--size);
+    aspect-ratio: 1;
+    margin-inline: auto;
+    color: var(--c-sage);
+    touch-action: manipulation;
+  }
+  .eye__rings {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .eye__ring {
+    stroke-width: 1;
+    transform: translate(var(--tx, 0px), var(--ty, 0px));
+  }
+  .eye__pupil {
+    position: absolute;
+    inset: 22%;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--c-pine-2);
+    box-shadow:
+      0 0 0 1px rgba(244, 241, 233, 0.35),
+      0 40px 80px -30px rgba(0, 0, 0, 0.55);
+    transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0);
+    isolation: isolate;
+  }
+  .eye__photo {
+    position: absolute;
+    inset: -12%;
+    transform: translate3d(var(--px, 0px), var(--py, 0px), 0);
+  }
+  .eye__photo :global(.media),
+  .eye__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Lichtreflex auf dem Wasser, wandert zum Cursor */
+  .eye__glint {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--gx, 38%) var(--gy, 32%),
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.18) 9%,
+      rgba(255, 255, 255, 0) 26%
+    );
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+  .eye__ripples {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .eye__ripples :global(.ripple) {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    margin: -90px 0 0 -90px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    animation: ripple 1.5s cubic-bezier(0.16, 0.7, 0.3, 1) forwards;
+  }
+  @keyframes ripple {
+    from {
+      transform: scale(0.05);
+      opacity: 0.9;
+    }
+    to {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  import { clamp, reducedMotion } from '../scripts/motion';
+
+  document.querySelectorAll<HTMLElement>('[data-eye]').forEach((eye) => {
+    if (reducedMotion()) return;
+    const pupil = eye.querySelector<HTMLElement>('.eye__pupil')!;
+    const photo = eye.querySelector<HTMLElement>('[data-photo]')!;
+    const glint = eye.querySelector<HTMLElement>('[data-glint]')!;
+    const ripples = eye.querySelector<HTMLElement>('[data-ripples]')!;
+    const rings = Array.from(eye.querySelectorAll<SVGCircleElement>('.eye__ring'));
+    const area = eye.closest('section') ?? eye;
+    const MAX = 38;
+
+    let tx = 0;
+    let ty = 0;
+    let x = 0;
+    let y = 0;
+    let gx = 38;
+    let gy = 32;
+    let tgx = 38;
+    let tgy = 32;
+    let raf = 0;
+    let visible = false;
+
+    const render = () => {
+      x += (tx - x) * 0.09;
+      y += (ty - y) * 0.09;
+      gx += (tgx - gx) * 0.09;
+      gy += (tgy - gy) * 0.09;
+      const scale = eye.clientWidth / 620; // SVG-Einheiten → Pixel
+      for (const ring of rings) {
+        const k = Number(ring.dataset.k);
+        ring.style.setProperty('--tx', `${((x * k) / scale).toFixed(2)}px`);
+        ring.style.setProperty('--ty', `${((y * k) / scale).toFixed(2)}px`);
+      }
+      pupil.style.setProperty('--tx', `${x.toFixed(2)}px`);
+      pupil.style.setProperty('--ty', `${y.toFixed(2)}px`);
+      photo.style.setProperty('--px', `${(-x * 0.45).toFixed(2)}px`);
+      photo.style.setProperty('--py', `${(-y * 0.45).toFixed(2)}px`);
+      glint.style.setProperty('--gx', `${gx.toFixed(1)}%`);
+      glint.style.setProperty('--gy', `${gy.toFixed(1)}%`);
+      const moving = Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(tgx - gx) + Math.abs(tgy - gy) > 0.05;
+      raf = moving && visible ? requestAnimationFrame(render) : 0;
+    };
+    const kick = () => {
+      if (!raf && visible) raf = requestAnimationFrame(render);
+    };
+
+    const aim = (clientX: number, clientY: number) => {
+      const rect = eye.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = clientX - cx;
+      const dy = clientY - cy;
+      const dist = Math.hypot(dx, dy) || 1;
+      const strength = clamp(dist / (rect.width * 0.9)) * MAX;
+      tx = (dx / dist) * strength;
+      ty = (dy / dist) * strength;
+      const p = pupil.getBoundingClientRect();
+      tgx = clamp((clientX - p.left) / p.width, 0.08, 0.92) * 100;
+      tgy = clamp((clientY - p.top) / p.height, 0.08, 0.92) * 100;
+      kick();
+    };
+
+    let lastRipple = 0;
+    const ripple = (clientX: number, clientY: number, force = false) => {
+      const now = performance.now();
+      if (!force && now - lastRipple < 140) return;
+      const p = pupil.getBoundingClientRect();
+      const lx = clientX - p.left;
+      const ly = clientY - p.top;
+      const r = p.width / 2;
+      if (Math.hypot(lx - r, ly - r) > r) return; // nur auf dem Wasser
+      lastRipple = now;
+      if (ripples.childElementCount >= 6) ripples.firstElementChild?.remove();
+      const ring = document.createElement('span');
+      ring.className = 'ripple';
+      ring.style.left = `${lx}px`;
+      ring.style.top = `${ly}px`;
+      ring.addEventListener('animationend', () => ring.remove());
+      ripples.append(ring);
+    };
+
+    area.addEventListener('pointermove', (e) => {
+      const event = e as PointerEvent;
+      aim(event.clientX, event.clientY);
+      if (event.pointerType === 'mouse') ripple(event.clientX, event.clientY);
+    });
+    area.addEventListener('pointerdown', (e) => {
+      const event = e as PointerEvent;
+      aim(event.clientX, event.clientY);
+      ripple(event.clientX, event.clientY, true);
+    });
+    area.addEventListener('pointerleave', () => {
+      tx = 0;
+      ty = 0;
+      tgx = 38;
+      tgy = 32;
+      kick();
+    });
+
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) kick();
+    }).observe(eye);
+  });
+</script>

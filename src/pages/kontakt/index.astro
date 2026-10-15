@@ -4,12 +4,13 @@ import PageIntro from '../../components/PageIntro.astro';
 import InquiryForm from '../../components/InquiryForm.astro';
 import Icon from '../../components/Icon.astro';
 import { company, links } from '../../data/site';
+import { url } from '../../lib/url';
 
 const contactSchema = {
   '@context': 'https://schema.org',
   '@type': 'ContactPage',
   name: 'Kontakt',
-  url: new URL('/kontakt/', Astro.site).href,
+  url: new URL(url('/kontakt/'), Astro.site).href,
   about: { '@id': `${Astro.site?.href}#organisation` },
 };
 ---

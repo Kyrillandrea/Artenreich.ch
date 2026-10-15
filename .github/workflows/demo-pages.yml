@@ -1,0 +1,62 @@
+name: Demo auf GitHub Pages
+
+# Baut die Vorschau-Website (Demo-Modus, noindex, ohne Formularversand) und veröffentlicht sie
+# unter https://kyrillandrea.github.io/Artenreich.ch/
+on:
+  push:
+    branches: [claude/artenreich-website]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Originalbilder von artenreich.ch sichern (falls erreichbar)
+        run: npm run assets:fetch || echo "::warning::Nicht alle Originalbilder konnten gesichert werden – die Demo lädt fehlende Bilder direkt von artenreich.ch."
+
+      - name: Demo bauen
+        env:
+          BASE_PATH: /Artenreich.ch/
+          SITE_URL: https://kyrillandrea.github.io
+          PUBLIC_DEMO: 'true'
+          PUBLIC_INDEXING: 'false'
+        run: npx astro build
+
+      - name: Inhaltsprüfung
+        env:
+          BASE_PATH: /Artenreich.ch/
+        run: npm run check:content
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/client
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

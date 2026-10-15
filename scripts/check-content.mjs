@@ -14,6 +14,9 @@ import { media } from '../src/data/media.ts';
 import { poolIntro, planningQuestions, poolFaq } from '../src/data/pool.ts';
 
 const dist = resolve(import.meta.dirname, '../dist/client');
+// Basispfad des Builds (z. B. /Artenreich.ch/ für die Vorschau auf GitHub Pages)
+const BASE = (process.env.BASE_PATH || '/').replace(/\/?$/, '/');
+const href = (path) => BASE + path.replace(/^\//, '');
 if (!existsSync(join(dist, 'index.html'))) {
   console.error('Kein Build gefunden. Zuerst `npm run build` ausführen.');
   process.exit(1);
@@ -50,6 +53,14 @@ const expect = (label, ok) => {
 };
 const has = (route, text, label = text.slice(0, 60)) => expect(`${route}: ${label}`, visible(route).includes(text.replace(/\s+/g, ' ')));
 const hasAttr = (route, needle, label) => expect(`${route}: ${label}`, html(route).includes(needle));
+// Bild vorhanden: als Original-URL (Vorschau) oder als lokal optimierte Datei (Dateiname der Ablage)
+const hasImage = (route, id, label) => {
+  const item = media[id];
+  const remote = item.src ? item.src.split('/').pop() : null;
+  const stem = item.file.replace(/\.\w+$/, '');
+  const page = html(route);
+  expect(`${route}: ${label}`, (remote && page.includes(remote)) || page.includes(`/${stem}.`));
+};
 
 // Hero
 has('/', hero.title[0]);
@@ -81,7 +92,7 @@ for (const s of services) {
   for (const route of ['/', '/naturgarten/']) {
     has(route, s.title, `Leistung ${s.title}`);
     has(route, s.text, `Leistungstext ${s.title}`);
-    hasAttr(route, media[s.image].src.split('/').pop(), `Leistungsbild ${s.title}`);
+    hasImage(route, s.image, `Leistungsbild ${s.title}`);
   }
 }
 
@@ -90,7 +101,7 @@ for (const season of seasons) {
   for (const route of ['/', '/naturgarten/']) {
     has(route, season.title, `Jahreszeit ${season.title}`);
     season.lines.forEach((l) => has(route, l, `${season.title}: ${l}`));
-    hasAttr(route, media[season.image].src.split('/').pop(), `Bild ${season.title}`);
+    hasImage(route, season.image, `Bild ${season.title}`);
   }
 }
 
@@ -98,7 +109,7 @@ for (const season of seasons) {
 expect('Team: 14 Profile in den Daten', team.length === 14);
 for (const m of team) {
   has('/team/', m.name, `Name ${m.name}`);
-  hasAttr('/team/', media[m.portrait].src.split('/').pop(), `Porträt ${m.name}`);
+  hasImage('/team/', m.portrait, `Porträt ${m.name}`);
   if (m.bio) has('/team/', m.bio, `Biografie ${m.name}`);
   has('/', m.name, `Startseite Team ${m.name}`);
 }
@@ -135,9 +146,9 @@ for (const route of ['/', '/naturgarten/', '/naturpools-schwimmteiche/', '/impre
   has(route, company.email.display, 'E-Mail');
   hasAttr(route, `href="${company.phone.href}"`, 'tel-Link');
   hasAttr(route, `href="${company.email.href}"`, 'mailto-Link');
-  hasAttr(route, 'href="/datenschutz/"', 'Datenschutz-Link');
+  hasAttr(route, `href="${href('/datenschutz/')}"`, 'Datenschutz-Link');
   hasAttr(route, links.recruiting.href, 'Recruiting im Footer');
-  hasAttr(route, 'logo.png', 'Original-Logo');
+  hasImage(route, 'logo', 'Original-Logo');
 }
 has('/kontakt/', company.depot.label, 'Werkhof separat');
 has('/kontakt/', company.contactPerson, 'Ansprechperson');

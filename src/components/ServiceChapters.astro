@@ -1,7 +1,6 @@
 ---
-/** Drei grosszügige Bild-Text-Kapitel: Gestaltung, Verwirklichung, Betreuung (Originaltexte) */
-import Media from './Media.astro';
-import Icon from './Icon.astro';
+/** Gestaltung, Verwirklichung, Betreuung (Originaltexte und -bilder) als gestapelte Karten */
+import StackCards from './StackCards.astro';
 import { services } from '../data/content';
 
 interface Props {
@@ -12,122 +11,32 @@ interface Props {
 }
 
 const { title = 'Von der Idee zum lebendigen Garten.', id = 'leistungen', linkToDetail = false } = Astro.props;
+const items = services.map((service) => ({
+  id: service.id,
+  title: service.title,
+  text: service.text,
+  image: service.image,
+  link: linkToDetail ? { label: `${service.title} im Naturgarten`, href: `/naturgarten/#${service.id}` } : undefined,
+}));
 ---
 
 <section class="services section" id={id} aria-labelledby={`${id}-title`}>
   <div class="container">
-    <div class="services__head grid-12" data-reveal>
-      <p class="eyebrow services__eyebrow">Leistungen</p>
+    <div class="services__head" data-reveal>
+      <p class="eyebrow">Leistungen</p>
       <h2 id={`${id}-title`} class="h2 services__title">{title}</h2>
     </div>
-
-    <ol class="services__list">
-      {
-        services.map((service, i) => (
-          <li class="chapter grid-12" id={service.id} data-side={i % 2 === 0 ? 'left' : 'right'}>
-            <figure class="chapter__media" data-reveal>
-              <div class="frame chapter__frame">
-                <Media id={service.image} sizes="(min-width: 1100px) 56vw, (min-width: 700px) 60vw, 100vw" />
-              </div>
-            </figure>
-            <div class="chapter__text" data-reveal style="--reveal-delay:140ms">
-              <span class="chapter__num" aria-hidden="true">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <h3 class="h3 chapter__title">{service.title}</h3>
-              <p class="lead chapter__copy">{service.text}</p>
-              {linkToDetail && (
-                <a class="text-link" href={`/naturgarten/#${service.id}`}>
-                  {service.title} im Naturgarten
-                  <Icon name="arrow-right" size={18} />
-                </a>
-              )}
-            </div>
-          </li>
-        ))
-      }
-    </ol>
+    <StackCards items={items} tones={['paper', 'sand', 'pine']} />
   </div>
 </section>
 
 <style>
   .services__head {
-    row-gap: 20px;
-  }
-  .services__eyebrow,
-  .services__title {
-    grid-column: 1 / -1;
+    display: grid;
+    gap: 20px;
+    margin-bottom: clamp(40px, 6vw, 88px);
   }
   .services__title {
     max-width: 13ch;
-  }
-  .services__list {
-    list-style: none;
-    margin: clamp(56px, 7vw, 112px) 0 0;
-    padding: 0;
-    display: grid;
-    gap: clamp(72px, 10vw, 168px);
-  }
-  .chapter {
-    align-items: end;
-    row-gap: 28px;
-  }
-  .chapter__media,
-  .chapter__text {
-    grid-column: 1 / -1;
-  }
-  .chapter__frame {
-    aspect-ratio: 4 / 3;
-  }
-  .chapter__text {
-    display: grid;
-    gap: 16px;
-    justify-items: start;
-  }
-  .chapter__num {
-    font-family: var(--font-serif);
-    font-size: clamp(3rem, 4vw, 4.5rem);
-    line-height: 0.9;
-    color: var(--c-sage);
-  }
-  .chapter__copy {
-    max-width: 22ch;
-  }
-
-  @media (min-width: 700px) {
-    .chapter[data-side='left'] .chapter__media {
-      grid-column: 1 / span 7;
-    }
-    .chapter[data-side='left'] .chapter__text {
-      grid-column: 8 / -1;
-    }
-    .chapter[data-side='right'] .chapter__media {
-      grid-column: 6 / -1;
-      grid-row: 1;
-    }
-    .chapter[data-side='right'] .chapter__text {
-      grid-column: 1 / span 5;
-      grid-row: 1;
-    }
-  }
-  @media (min-width: 1100px) {
-    .chapter[data-side='left'] .chapter__media {
-      grid-column: 1 / span 7;
-    }
-    .chapter[data-side='left'] .chapter__text {
-      grid-column: 9 / span 4;
-    }
-    .chapter[data-side='right'] .chapter__media {
-      grid-column: 6 / span 7;
-    }
-    .chapter[data-side='right'] .chapter__text {
-      grid-column: 2 / span 4;
-    }
-    .chapter:nth-child(2) .chapter__frame {
-      aspect-ratio: 5 / 4;
-    }
-    .chapter__text {
-      padding-bottom: clamp(8px, 2vw, 40px);
-    }
   }
 </style>

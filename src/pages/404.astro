@@ -2,14 +2,15 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageIntro from '../components/PageIntro.astro';
 import { nav } from '../data/site';
+import { url } from '../lib/url';
 ---
 
 <BaseLayout title="Seite nicht gefunden" noindex stickyCta={false}>
   <PageIntro eyebrow="Fehler 404" title="Diese Seite gibt es nicht." lead="Vielleicht finden Sie hier, was Sie suchen:">
     <ul class="nf-links">
-      <li><a href="/">Startseite</a></li>
-      {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
-      <li><a href="/kontakt/">Kontakt</a></li>
+      <li><a href={url('/')}>Startseite</a></li>
+      {nav.map((item) => <li><a href={url(item.href)}>{item.label}</a></li>)}
+      <li><a href={url('/kontakt/')}>Kontakt</a></li>
     </ul>
   </PageIntro>
 </BaseLayout>

@@ -1,9 +1,10 @@
 ---
 /**
- * «Ein Garten. Vier Jahreszeiten.»
+ * «Ein Garten. Vier Jahreszeiten.» – Technik 03: Scroll-driven Rotation («Jahresrad»).
+ * Desktop mit Bewegung: Die Bühne bleibt stehen, ein Rad mit den vier Jahreszeiten dreht sich
+ * beim Scrollen und holt die nächste Jahreszeit nach vorn.
+ * Desktop mit reduzierter Bewegung: beschriftete, tastaturbedienbare Auswahl (ARIA-Tabs).
  * Ohne Skript und auf Mobil: vier ruhige Kapitel untereinander.
- * Ab 900 px mit Skript: beschriftete, tastaturbedienbare Auswahl (ARIA-Tabs) und
- * organischer Bildwechsel (ca. 800 ms); der Text bleibt stabil.
  */
 import Media from './Media.astro';
 import { seasons } from '../data/content';
@@ -15,7 +16,8 @@ const { id = 'jahreszeiten' } = Astro.props;
 ---
 
 <section class="seasons section theme-sand" id={id} aria-labelledby={`${id}-title`} data-seasons>
-  <div class="container">
+  <div class="seasons__pin" data-seasons-pin>
+  <div class="container seasons__inner">
     <div class="seasons__head" data-reveal>
       <p class="eyebrow">Im Wandel</p>
       <h2 id={`${id}-title`} class="h2 seasons__title">Ein Garten. <em>Vier</em> Jahreszeiten.</h2>
@@ -69,6 +71,39 @@ const { id = 'jahreszeiten' } = Astro.props;
         ))
       }
     </div>
+
+    <div class="wheel" data-wheel aria-hidden="true" hidden>
+      <div class="wheel__words">
+        {seasons.map((season, i) => <span class:list={['wheel__word', { 'is-active': i === 0 }]}>{season.title}</span>)}
+      </div>
+      <div class="wheel__dial" data-dial>
+        <svg class="wheel__ring" viewBox="-100 -100 200 200" focusable="false">
+          <circle r="86" fill="none" stroke="currentColor" stroke-width="0.35" />
+          <circle r="97" fill="none" stroke="currentColor" stroke-width="0.2" stroke-dasharray="0.4 2.2" />
+          {
+            Array.from({ length: 72 }, (_, t) => (
+              <line
+                x1="0"
+                y1={t % 18 === 0 ? -80 : t % 6 === 0 ? -82 : -84}
+                x2="0"
+                y2="-88.5"
+                stroke="currentColor"
+                stroke-width={t % 18 === 0 ? 0.6 : 0.3}
+                transform={`rotate(${t * 5})`}
+              />
+            ))
+          }
+        </svg>
+      </div>
+      {
+        seasons.map((season, i) => (
+          <div class="wheel__node" data-node style={`--k:${i}`}>
+            <Media id={season.image} sizes="(min-width: 1000px) 28vw, 40vw" widths={[360, 540, 760, 960]} alt="" />
+          </div>
+        ))
+      }
+    </div>
+  </div>
   </div>
 </section>
 
@@ -247,6 +282,155 @@ const { id = 'jahreszeiten' } = Astro.props;
         opacity: 0;
       }
     }
+  }
+</style>
+
+<style>
+  /* ---------- Jahresrad (nur Desktop mit Bewegung, per Skript aktiviert) ---------- */
+  .wheel[hidden] {
+    display: none;
+  }
+  .seasons.is-wheel {
+    height: calc(100vh + 240vh);
+    padding-block: 0;
+  }
+  .seasons.is-wheel .seasons__pin {
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow: hidden;
+  }
+  .seasons.is-wheel .seasons__inner {
+    position: relative;
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-rows: auto 1fr auto;
+    column-gap: var(--col-gap);
+    padding-block: clamp(28px, 6vh, 64px);
+  }
+  .seasons.is-wheel .seasons__head {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .seasons.is-wheel .seasons__title {
+    font-size: clamp(2.5rem, 3.4vw + 0.6rem, 4.75rem);
+  }
+  .seasons.is-wheel .seasons__stage {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: center;
+    display: grid;
+    position: relative;
+    z-index: 2;
+  }
+  .seasons.is-wheel .season {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 280ms ease, transform 280ms ease, visibility 0s linear 280ms;
+  }
+  .seasons.is-wheel .season.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 480ms var(--ease-out) 80ms, transform 480ms var(--ease-out) 80ms;
+  }
+  .seasons.is-wheel .season__media {
+    display: none;
+  }
+  .seasons.is-wheel .season__title {
+    font-size: clamp(3rem, 4vw + 1rem, 6rem);
+  }
+  .seasons.is-wheel .seasons__tablist {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .seasons.is-wheel .seasons__tablist {
+    flex-wrap: nowrap;
+  }
+  .seasons.is-wheel .seasons__tab {
+    font-size: clamp(1.0625rem, 0.7vw + 0.7rem, 1.5rem);
+    min-height: 52px;
+    gap: 8px;
+    padding-right: clamp(10px, 1vw, 16px);
+    margin-right: 2px;
+  }
+  .seasons.is-wheel .seasons__tab::after {
+    right: clamp(10px, 1vw, 16px);
+  }
+  .seasons.is-wheel .wheel {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    position: relative;
+    display: block;
+    color: var(--c-pine);
+  }
+  .wheel__words {
+    position: absolute;
+    inset: 0 calc(var(--gutter) * -1) 0 -40%;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+  }
+  .wheel__word {
+    grid-area: 1 / 1;
+    font-family: var(--font-serif);
+    font-size: clamp(7rem, 17vw, 18rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--c-stone);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 500ms ease, transform 700ms var(--ease-out);
+    white-space: nowrap;
+  }
+  .wheel__word.is-active {
+    opacity: 0.55;
+    transform: none;
+  }
+  .wheel__dial {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--d, 600px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  }
+  .wheel__ring {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: 0.55;
+  }
+  .wheel__node {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--node, 260px);
+    aspect-ratio: 1;
+    margin: calc(var(--node, 260px) / -2) 0 0 calc(var(--node, 260px) / -2);
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--c-stone-2);
+    box-shadow: 0 30px 60px -34px rgba(20, 43, 35, 0.6);
+    transform: translate3d(var(--x, 0px), var(--y, 0px), 0) scale(var(--ns, 1));
+    opacity: var(--o, 1);
+    z-index: var(--z, 1);
+  }
+  .wheel__node :global(.media),
+  .wheel__node :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 </style>
 

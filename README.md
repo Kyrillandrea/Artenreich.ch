@@ -8,6 +8,38 @@ Statisch vorgerenderte Seiten mit Astro, ein serverseitiger Endpunkt für das An
 > SMTP-Zugangsdaten. Details: [`docs/OFFENE-PUNKTE.md`](docs/OFFENE-PUNKTE.md).
 > Die Vorschau ist bis zur Freigabe auf `noindex` gestellt.
 
+## Vorschau im Web (Demo)
+
+Die Demo wird bei jedem Push auf `claude/artenreich-website` automatisch gebaut und auf GitHub Pages
+veröffentlicht: **https://kyrillandrea.github.io/Artenreich.ch/**
+(Workflow: [`.github/workflows/demo-pages.yml`](.github/workflows/demo-pages.yml)).
+
+- Demo-Modus: dezenter Hinweis «Vorschau», `noindex` + gesperrte `robots.txt`, das Formular versendet
+  nichts und sagt das ehrlich (E-Mail-/Telefon-Weg bleibt nutzbar).
+- Der Workflow sichert vor dem Build die Originalbilder von artenreich.ch (`npm run assets:fetch`);
+  gelingt das nicht, lädt die Demo fehlende Bilder direkt von artenreich.ch.
+- Einmalig nötig: GitHub → Repository → **Settings → Pages → Build and deployment → Source: «GitHub Actions»**.
+
+Lokal genau wie auf GitHub Pages testen:
+
+```bash
+npm run demo:build && npm run demo:serve   # http://127.0.0.1:4400/Artenreich.ch/
+```
+
+## Bewegung: die fünf Effekte
+
+| Technik | Wo | Umsetzung |
+|---|---|---|
+| 01 Layered Parallax | Hero Startseite und Naturpools | Tiefenebenen (Foto, Dunst, Text, Bildfenster) mit eigener Scroll-Geschwindigkeit + Maus-Tiefe (`Hero.astro`, `scripts/layered-hero.ts`) |
+| 02 Scroll Text Reveal | «Ein Garten. Unzählige Lebensräume.» | Buchstaben erblühen beim Scrollen, fallende Blätter (`BloomHeading.astro`) |
+| 03 Scroll-driven Rotation | Jahreszeiten (Startseite, Naturgarten) | «Jahresrad» dreht sich beim Scrollen, Bühne bleibt stehen (`Seasons.astro`, `scripts/seasons.ts`) |
+| 04 Cursor Tracking | Naturpool-Kapitel Startseite | «Wasser-Auge»: Ringe, Bild und Lichtreflex folgen dem Cursor, Wellen bei Bewegung/Tippen (`WaterEye.astro`) |
+| 05 Stacking Cards | Leistungen, Planungsfragen | Karten stapeln sich versetzt, untere treten zurück – ohne Abdunkeln (`StackCards.astro`) |
+
+Alle Effekte laufen über eine gemeinsame Scroll-Engine (`scripts/motion.ts`, ein `requestAnimationFrame`,
+nur sichtbare Elemente). Bei `prefers-reduced-motion`, ohne JavaScript und auf kleinen Bildschirmen
+gibt es ruhige, vollständig lesbare Varianten (z. B. Jahreszeiten als Tabs bzw. Kapitel).
+
 ## Schnellstart
 
 Voraussetzung: Node.js ≥ 22.12
@@ -51,6 +83,8 @@ Alle Einstellungen über Umgebungsvariablen – Vorlage: [`.env.example`](.env.e
 | `FORM_RATE_LIMIT` | Gültige Anfragen pro IP und 10 Minuten (Standard 5) |
 | `TRUST_PROXY` | `true` hinter einem Reverse-Proxy (wertet `X-Forwarded-For` aus) |
 | `HOST`, `PORT` | Adresse des Node-Servers |
+| `BASE_PATH`, `SITE_URL` | Basispfad und Domain (Build-Zeit), z. B. `/Artenreich.ch/` für GitHub Pages |
+| `PUBLIC_DEMO` | `true` für die Vorschau: Hinweis «Vorschau», Formular versendet nichts |
 
 Ohne SMTP-Konfiguration nimmt der Server keine Anfragen an (HTTP 503). Die Website meldet
 dann ehrlich, dass der Formularversand nicht verfügbar ist, behält alle Eingaben und bietet

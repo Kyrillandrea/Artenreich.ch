@@ -17,13 +17,14 @@ bis dahin auf die bestehende Erklärung und nennt die Kontaktadresse.
 | Anfrageformular | POST an `/api/anfrage/`, Versand per SMTP an `MAIL_TO` | Name, E-Mail (Pflicht); optional Projektart, Region, Zeitrahmen, Telefon, Nachricht |
 | Spam-Schutz | Unsichtbares Feld (Honeypot), Ausfüllzeit, Rate-Limit | IP-Adresse wird **nur im Arbeitsspeicher** des Servers für max. 10 Minuten gehalten, nicht gespeichert |
 | Bestätigung ohne JavaScript | Cookie `anfrage_ok` | Technisch notwendig, HttpOnly, Pfad `/kontakt/danke/`, Gültigkeit 120 Sekunden, wird beim Anzeigen gelöscht |
-| Schriften | Lokal ausgeliefert (`/fonts/`) | Keine Verbindung zu Google Fonts oder anderen Schriftdiensten |
+| Schriften | Lokal ausgeliefert (gebündelt unter `/_astro/`) | Keine Verbindung zu Google Fonts oder anderen Schriftdiensten |
 | Analyse / Tracking | **Keines** eingebaut | – |
 | Karten | Nur Link zu Google Maps (`g.page`), keine Einbettung | Daten fliessen erst beim Klick auf den Link an Google |
 | Social Media | Nur Links zu Instagram und Facebook, keine Plugins/Einbettungen | Erst beim Klick |
 | Bioterra-Label | Bild + Link zu bioterra.ch | Erst beim Klick |
 | Recruiting | Link zu werdeartenreich.ch | Erst beim Klick |
 | E-Mail-Weg | `mailto:`-Link öffnet das eigene E-Mail-Programm | Versand über das E-Mail-Konto der Besucherin/des Besuchers |
+| Vorschau auf GitHub Pages | Demo-Hosting bei GitHub (USA); Formular versendet dort nichts | Server-Logdaten bei GitHub; nur für die Vorschau |
 | Bilder (nur Vorschau) | Solange Originale nicht lokal liegen, lädt die **Vorschau** Bilder von artenreich.ch | Entfällt nach `npm run assets:fetch` vollständig |
 
 ## Zu klärende Punkte

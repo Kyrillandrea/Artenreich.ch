@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { url } from '../lib/url';
 
 interface Props {
   title?: string;
@@ -17,7 +18,7 @@ const { title = 'Was darf bei Ihnen wachsen?', href, label, projekt, external = 
     <h2 id="band-title" class="h2 band__title">{title}</h2>
     <div class="band__actions">
       <slot />
-      <a class="btn" href={href} data-projekt={projekt} rel={external ? 'noopener' : undefined}>
+      <a class="btn" href={url(href)} data-projekt={projekt} rel={external ? 'noopener' : undefined}>
         {label}
         <Icon name={external ? 'arrow-up-right' : 'arrow-right'} />
         {external && <span class="sr-only">(externe Website)</span>}

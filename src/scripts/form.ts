@@ -152,6 +152,17 @@ function setup(form: HTMLFormElement): void {
       return;
     }
 
+    // Vorschau ohne Server (z. B. GitHub Pages): ehrlich melden, nichts vortäuschen
+    if (form.dataset.demo === 'true') {
+      setStatus(
+        '<p><strong>Dies ist eine Vorschau der neuen Website – hier wird keine Anfrage versendet.</strong> ' +
+          'Ihre Angaben bleiben im Formular erhalten.</p>' +
+          `<p>Sie können die Anfrage <a href="${escapeAttr(mailtoHref())}">per E-Mail senden</a> ` +
+          'oder uns unter <a href="tel:+41432442000">+41 43 244 20 00</a> anrufen.</p>',
+      );
+      return;
+    }
+
     elapsed.value = String(Math.round(performance.now() - loadedAt));
     submit.setAttribute('aria-busy', 'true');
     submitLabel.textContent = 'Wird übermittelt …';

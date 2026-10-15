@@ -10,8 +10,11 @@ export const hero = {
   subtitle: 'Individuelle Naturgärten, Schwimmteiche und Naturpools von Artenreich.',
   primary: { label: 'Naturpool anfragen', projekt: 'naturpool' },
   secondary: { label: 'Unsere Arbeiten entdecken', href: '/impressionen/' },
-  /** Echte Bildlayer: atmosphärische Gartenszene + Farn-/Steindetail */
-  layers: { main: 'galerie-03', detail: 'galerie-05' } as { main: MediaId; detail: MediaId },
+  /**
+   * Bildebenen für den Layered-Parallax-Einstieg (hinten → vorn).
+   * Poolbilder vom Auftraggeber geliefert; nicht als Referenzprojekt beschriftet.
+   */
+  layers: { back: 'pool-01', front: ['pool-03', 'pool-02'] } as { back: MediaId; front: [MediaId, MediaId] },
   /**
    * Vorbereitet für den späteren Originalfilm (Teichwasser → Wasserpflanzen → Steintextur →
    * Schwimmteich). Erst eintragen, wenn freigegebenes Material vorliegt.

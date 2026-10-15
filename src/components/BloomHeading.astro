@@ -1,0 +1,154 @@
+---
+/**
+ * Technik 02 – Scroll Text Reveal.
+ * Grosse Serifenschrift «erblüht» Buchstabe für Buchstabe, während die Überschrift durch den
+ * Viewport scrollt. Screenreader lesen den vollständigen Text (visuell versteckt) – die
+ * aufgeteilten Buchstaben sind dekorativ. Ohne Skript/bei reduzierter Bewegung voll sichtbar.
+ */
+interface Word {
+  text: string;
+  em?: boolean;
+}
+interface Props {
+  id: string;
+  lines: Word[][];
+  tag?: 'h1' | 'h2';
+  leaves?: boolean;
+}
+const { id, lines, tag = 'h2', leaves = true } = Astro.props;
+const Tag = tag;
+const plain = lines.map((line) => line.map((w) => w.text).join(' ')).join(' ');
+
+let index = 0;
+const structured = lines.map((line) =>
+  line.map((word) => ({ ...word, chars: [...word.text].map((ch) => ({ ch, i: index++ })) })),
+);
+const total = index;
+
+// Blätter: Startversatz (fallen in ihre Endposition, drehen sich dabei)
+const leafSet = [
+  { x: '6%', y: '8%', dx: '-60px', dy: '-220px', r: '-160deg', s: 0.9 },
+  { x: '88%', y: '4%', dx: '80px', dy: '-260px', r: '200deg', s: 0.7 },
+  { x: '16%', y: '86%', dx: '-40px', dy: '-300px', r: '120deg', s: 0.6 },
+  { x: '79%', y: '92%', dx: '30px', dy: '-340px', r: '-220deg', s: 1 },
+];
+---
+
+<div class="bloom-wrap" data-bloom style={`--n:${total}`}>
+  {
+    leaves && (
+      <div class="bloom__leaves" aria-hidden="true">
+        {leafSet.map((leaf) => (
+          <svg
+            class="bloom__leaf"
+            viewBox="0 0 40 40"
+            style={`left:${leaf.x};top:${leaf.y};--dx:${leaf.dx};--dy:${leaf.dy};--r:${leaf.r};--s:${leaf.s}`}
+          >
+            <path d="M20 3c9 6 13 15 9 25-2 5-6 8-9 9-3-1-7-4-9-9C7 18 11 9 20 3Z" fill="currentColor" />
+            <path d="M20 8v28" stroke="rgba(244,241,233,.55)" stroke-width="1" fill="none" />
+          </svg>
+        ))}
+      </div>
+    )
+  }
+  <Tag id={id} class="bloom">
+    <span class="sr-only">{plain}</span>
+    <span class="bloom__text" aria-hidden="true">
+      {
+        structured.map((line) => (
+          <span class="bloom__line">
+            {line.map((word, wi) => (
+              <Fragment>
+                <span class:list={['bloom__word', { 'bloom__word--em': word.em }]}>
+                  {word.chars.map((c) => (
+                    <span class="bloom__char" style={`--i:${c.i}`}>
+                      {c.ch}
+                    </span>
+                  ))}
+                </span>
+                {wi < line.length - 1 ? ' ' : ''}
+              </Fragment>
+            ))}
+          </span>
+        ))
+      }
+    </span>
+  </Tag>
+</div>
+
+<style>
+  .bloom-wrap {
+    --p: 1;
+    position: relative;
+    overflow-x: clip;
+    padding-block: clamp(24px, 4vw, 64px);
+  }
+  .bloom {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-serif);
+    font-size: clamp(3rem, 8.4vw + 0.4rem, 9.75rem);
+    font-weight: 500;
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: var(--c-pine);
+  }
+  .bloom__line {
+    display: block;
+  }
+  .bloom__word {
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .bloom__word--em {
+    font-style: italic;
+    color: var(--c-sage-ink);
+  }
+  .bloom__char {
+    display: inline-block;
+    --t: clamp(0, calc((var(--p) * (var(--n) + 10) - var(--i)) / 10), 1);
+    opacity: calc(0.12 + 0.88 * var(--t));
+    transform: translate3d(0, calc((1 - var(--t)) * 0.2em), 0) scale(calc(0.9 + 0.1 * var(--t)));
+    filter: blur(calc((1 - var(--t)) * 6px));
+    transform-origin: 50% 80%;
+  }
+
+  .bloom__leaves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    color: var(--c-sage);
+  }
+  .bloom__leaf {
+    position: absolute;
+    width: calc(34px * var(--s));
+    height: calc(34px * var(--s));
+    opacity: calc(0.85 * var(--p));
+    transform: translate3d(calc(var(--dx) * (1 - var(--p))), calc(var(--dy) * (1 - var(--p))), 0)
+      rotate(calc(var(--r) * (1 - var(--p))));
+  }
+  @media (max-width: 699px) {
+    .bloom__leaf:nth-child(n + 3) {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bloom-wrap {
+      --p: 1 !important;
+    }
+  }
+</style>
+
+<script>
+  import { clamp, onScrollFrame, reducedMotion } from '../scripts/motion';
+  if (!reducedMotion()) {
+    document.querySelectorAll<HTMLElement>('[data-bloom]').forEach((wrap) => {
+      onScrollFrame(wrap, (rect, vh) => {
+        // Erblühen beginnt, wenn die Überschrift unten erscheint, und endet bei ca. 35 % Höhe
+        const p = clamp((vh * 0.95 - rect.top) / (vh * 0.62));
+        wrap.style.setProperty('--p', p.toFixed(3));
+      });
+    });
+  }
+</script>

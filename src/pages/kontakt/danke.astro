@@ -8,11 +8,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageIntro from '../../components/PageIntro.astro';
 import Icon from '../../components/Icon.astro';
 import { company } from '../../data/site';
+import { url } from '../../lib/url';
 
 export const prerender = false;
 
 const accepted = Astro.cookies.get('anfrage_ok')?.value === '1';
-if (accepted) Astro.cookies.delete('anfrage_ok', { path: '/kontakt/danke/' });
+if (accepted) Astro.cookies.delete('anfrage_ok', { path: url('/kontakt/danke/') });
 Astro.response.headers.set('cache-control', 'no-store');
 ---
 
@@ -24,14 +25,14 @@ Astro.response.headers.set('cache-control', 'no-store');
           Bei Fragen erreichen Sie uns unter <a href={company.phone.href}>{company.phone.display}</a> oder{' '}
           <a href={company.email.href}>{company.email.display}</a>.
         </p>
-        <a class="text-link" href="/">
+        <a class="text-link" href={url('/')}>
           Zur Startseite
           <Icon name="arrow-right" size={18} />
         </a>
       </PageIntro>
     ) : (
       <PageIntro eyebrow="Kontakt" title="Projekt anfragen" lead="Über das Anfrageformular erreichen Sie uns direkt.">
-        <a class="btn thanks-btn" href="/kontakt/#anfrage">
+        <a class="btn thanks-btn" href={url('/kontakt/#anfrage')}>
           Zum Anfrageformular
           <Icon name="arrow-right" />
         </a>

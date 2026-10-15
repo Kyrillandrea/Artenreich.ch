@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { normalizeInquiry, validateInquiry, type InquiryErrors } from '../../lib/inquiry';
 import { readMailConfig, sendInquiry } from '../../lib/mailer';
 import { company } from '../../data/site';
+import { url as withBase } from '../../lib/url';
 
 /** Serverseitig gerendert – alle übrigen Seiten bleiben statisch. */
 export const prerender = false;
@@ -123,13 +124,13 @@ export const POST: APIRoute = async ({ request, clientAddress, redirect, cookies
   // Formularversand ohne JavaScript
   if (outcome.status === 200) {
     cookies.set('anfrage_ok', '1', {
-      path: '/kontakt/danke/',
+      path: withBase('/kontakt/danke/'),
       maxAge: 120,
       httpOnly: true,
       sameSite: 'lax',
       secure: url.protocol === 'https:',
     });
-    return redirect('/kontakt/danke/', 303);
+    return redirect(withBase('/kontakt/danke/'), 303);
   }
   const contact = `<p>Sie erreichen uns auch direkt: <a href="${company.phone.href}">${company.phone.display}</a> · <a href="${company.email.href}">${company.email.display}</a></p>`;
   if (outcome.status === 422 && outcome.body.errors) {
@@ -143,7 +144,7 @@ export const POST: APIRoute = async ({ request, clientAddress, redirect, cookies
   const message = 'message' in outcome.body && outcome.body.message ? outcome.body.message : 'Die Anfrage konnte nicht verarbeitet werden.';
   return htmlPage(
     'Anfrage nicht übermittelt',
-    `<h1>Ihre Anfrage wurde nicht übermittelt</h1><p>${escape(message)}</p>${contact}<p><a href="/kontakt/">Zurück zur Kontaktseite</a></p>`,
+    `<h1>Ihre Anfrage wurde nicht übermittelt</h1><p>${escape(message)}</p>${contact}<p><a href="${withBase('/kontakt/')}">Zurück zur Kontaktseite</a></p>`,
     outcome.status,
   );
 };

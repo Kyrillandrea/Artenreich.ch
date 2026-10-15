@@ -1,0 +1,190 @@
+---
+/**
+ * Technik 05 – Stacking Cards.
+ * Karten bleiben beim Scrollen versetzt stehen (position: sticky) und schieben sich übereinander;
+ * darunterliegende Karten treten minimal zurück (Skalierung) – ohne Abdunkeln.
+ * Bei geringer Fensterhöhe normale Abfolge. Reduzierte Bewegung: keine Skalierung.
+ */
+import Media from './Media.astro';
+import Icon from './Icon.astro';
+import type { MediaId } from '../data/media';
+import { url } from '../lib/url';
+
+interface Card {
+  id?: string;
+  title: string;
+  text: string;
+  image: MediaId;
+  imageAlt?: string;
+  link?: { label: string; href: string };
+}
+interface Props {
+  items: Card[];
+  /** Farbfolge der Karten */
+  tones?: ('paper' | 'sand' | 'sage' | 'pine')[];
+}
+const { items, tones = ['paper', 'sand', 'pine', 'sage'] } = Astro.props;
+---
+
+<ol class="stack" data-stack style={`--count:${items.length}`}>
+  {
+    items.map((item, i) => (
+      <li class="stack__item" id={item.id} style={`--i:${i}`}>
+        <article class:list={['stack__card', `stack__card--${tones[i % tones.length]}`]} data-stack-card>
+          <div class="stack__media">
+            <Media id={item.image} alt={item.imageAlt} sizes="(min-width: 900px) 46vw, 100vw" widths={[480, 720, 960, 1320]} />
+          </div>
+          <div class="stack__body">
+            <span class="stack__num" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <h3 class="h3 stack__title">{item.title}</h3>
+            <p class="lead stack__text">{item.text}</p>
+            {item.link && (
+              <a class="text-link stack__link" href={url(item.link.href)}>
+                {item.link.label}
+                <Icon name="arrow-right" size={18} />
+              </a>
+            )}
+          </div>
+        </article>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .stack {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 clamp(24px, 8vh, 96px);
+    display: grid;
+    gap: clamp(28px, 8vh, 96px);
+  }
+  .stack__item {
+    position: sticky;
+    top: calc(var(--header-h) + 14px + var(--i) * 16px);
+  }
+  .stack__card {
+    --card-bg: var(--c-paper);
+    --card-fg: var(--c-ink);
+    --card-muted: var(--c-muted);
+    --card-num: var(--c-sage-ink);
+    position: relative;
+    display: grid;
+    overflow: hidden;
+    border: 1px solid var(--c-line);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--card-fg);
+    box-shadow: 0 -24px 48px -36px rgba(20, 43, 35, 0.45), 0 30px 60px -48px rgba(20, 43, 35, 0.5);
+    transform-origin: 50% 0;
+    transform: scale(var(--s, 1));
+    will-change: transform;
+  }
+  .stack__card--sand {
+    --card-bg: var(--c-sand);
+  }
+  .stack__card--sage {
+    --card-bg: #dfe5d6;
+  }
+  .stack__card--pine {
+    --card-bg: var(--c-pine);
+    --card-fg: var(--c-on-dark);
+    --card-muted: var(--c-on-dark-muted);
+    --card-num: var(--c-sage);
+    --focus: var(--c-on-dark);
+    border-color: var(--c-line-dark);
+  }
+  .stack__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: var(--c-stone-2);
+  }
+  .stack__card--pine .stack__media {
+    background: var(--c-pine-2);
+  }
+  .stack__media :global(.media),
+  .stack__media :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .stack__body {
+    position: relative;
+    display: grid;
+    align-content: end;
+    justify-items: start;
+    gap: 12px;
+    padding: clamp(22px, 3.4vw, 56px);
+  }
+  .stack__num {
+    font-family: var(--font-serif);
+    font-size: clamp(3.5rem, 6vw, 7rem);
+    font-weight: 500;
+    line-height: 0.85;
+    color: var(--card-num);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .stack__title {
+    font-size: clamp(2rem, 2.2vw + 1.2rem, 3.25rem);
+  }
+  .stack__text {
+    max-width: 26ch;
+  }
+  .stack__card :global(.text-link) {
+    color: var(--card-fg);
+  }
+
+  @media (min-width: 900px) {
+    .stack__card {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      min-height: min(68vh, 600px);
+    }
+    .stack__media {
+      aspect-ratio: auto;
+      min-height: 100%;
+    }
+    .stack__num {
+      position: absolute;
+      top: clamp(22px, 3vw, 48px);
+      right: clamp(22px, 3vw, 48px);
+    }
+    .stack__item {
+      top: calc(var(--header-h) + 24px + var(--i) * 22px);
+    }
+  }
+  /* Niedrige Fenster: Karten nicht festhalten, damit nichts verdeckt bleibt */
+  @media (max-height: 640px) {
+    .stack__item {
+      position: relative;
+      top: auto;
+    }
+  }
+</style>
+
+<script>
+  import { clamp, onScrollFrame, reducedMotion } from '../scripts/motion';
+
+  document.querySelectorAll<HTMLElement>('[data-stack]').forEach((stack) => {
+    if (reducedMotion()) return;
+    const items = Array.from(stack.children) as HTMLElement[];
+    const cards = items.map((li) => li.querySelector<HTMLElement>('[data-stack-card]')!);
+    onScrollFrame(stack, (_rect, vh) => {
+      // Fortschritt, mit dem jede folgende Karte an ihren Platz gleitet
+      const arrive = items.map((li, i) => {
+        if (i === 0) return 0;
+        const top = li.getBoundingClientRect().top;
+        const stickTop = parseFloat(getComputedStyle(li).top) || 0;
+        return clamp((vh - top) / Math.max(1, vh - stickTop));
+      });
+      cards.forEach((card, i) => {
+        let covered = 0;
+        for (let j = i + 1; j < items.length; j++) covered += arrive[j];
+        card.style.setProperty('--s', (1 - Math.min(covered, 3) * 0.045).toFixed(4));
+      });
+    });
+  });
+</script>

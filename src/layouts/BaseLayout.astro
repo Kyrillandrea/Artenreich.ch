@@ -7,6 +7,9 @@ import StickyCta from '../components/StickyCta.astro';
 import { seo, company, links } from '../data/site';
 import { getLocalImage, getMediaItem } from '../lib/media';
 import type { MediaId } from '../data/media';
+import { isDemo } from '../lib/url';
+import fontSerif from '../assets/fonts/cormorant-garamond-latin-500-normal.woff2?url';
+import fontSans from '../assets/fonts/inter-latin-wght-normal.woff2?url';
 
 interface Props {
   title?: string;
@@ -81,8 +84,8 @@ const schemas = [organization, ...jsonLd];
     <meta name="format-detection" content="telephone=no" />
     <link rel="icon" href="data:," />
 
-    <link rel="preload" href="/fonts/cormorant-garamond-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontSerif} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontSans} as="font" type="font/woff2" crossorigin />
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={seo.locale} />
@@ -104,6 +107,7 @@ const schemas = [organization, ...jsonLd];
     </main>
     <Footer />
     {stickyCta && <StickyCta href={stickyCta.href} projekt={stickyCta.projekt} />}
+    {isDemo && <p class="demo-badge">Vorschau · Entwurf der neuen Website</p>}
 
     <script>
       import { initReveal } from '../scripts/reveal';
@@ -126,5 +130,26 @@ const schemas = [organization, ...jsonLd];
 <style>
   main:focus {
     outline: none;
+  }
+  .demo-badge {
+    position: fixed;
+    left: max(12px, env(safe-area-inset-left));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 45;
+    margin: 0;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    background: rgba(20, 43, 35, 0.86);
+    color: var(--c-on-dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+  @media (max-width: 767px) {
+    .demo-badge {
+      bottom: auto;
+      top: calc(var(--header-h) + 8px);
+    }
   }
 </style>

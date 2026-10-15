@@ -1,14 +1,12 @@
 ---
 /** Startseite, Kapitel 3: hervorgehobener Naturpool-/Schwimmteichbereich mit Anfrageweg */
-import WaterRings from './WaterRings.astro';
+import WaterEye from './WaterEye.astro';
 import Icon from './Icon.astro';
 import { poolIntro, poolCta, planningQuestions } from '../data/pool';
+import { url } from '../lib/url';
 ---
 
 <section class="water section theme-pine" id="naturpools" aria-labelledby="water-title">
-  <div class="water__rings">
-    <WaterRings />
-  </div>
   <div class="container grid-12 water__grid">
     <div class="water__head" data-reveal>
       <p class="eyebrow">Naturpools &amp; Schwimmteiche</p>
@@ -21,11 +19,15 @@ import { poolIntro, poolCta, planningQuestions } from '../data/pool';
           {poolCta.label}
           <Icon name="arrow-right" />
         </a>
-        <a class="text-link" href="/naturpools-schwimmteiche/">
+        <a class="text-link" href={url('/naturpools-schwimmteiche/')}>
           Planung, Pflege und häufige Fragen
           <Icon name="arrow-right" size={18} />
         </a>
       </div>
+    </div>
+
+    <div class="water__eye" data-reveal style="--reveal-delay:200ms">
+      <WaterEye image="pool-04" />
     </div>
 
     <ol class="water__questions" aria-label="Fragen der Planung">
@@ -48,21 +50,20 @@ import { poolIntro, poolCta, planningQuestions } from '../data/pool';
   .water {
     overflow: hidden;
   }
-  .water__rings {
-    position: absolute;
-    width: clamp(520px, 72vw, 1100px);
-    right: clamp(-420px, -22vw, -160px);
-    top: clamp(-260px, -10vw, -80px);
-    opacity: 0.9;
-  }
   .water__grid {
     position: relative;
     row-gap: clamp(40px, 5vw, 64px);
   }
   .water__head,
   .water__intro,
+  .water__eye,
   .water__questions {
     grid-column: 1 / -1;
+  }
+  .water__eye {
+    max-width: 420px;
+    width: 100%;
+    justify-self: center;
   }
   .water__title {
     margin-top: 20px;
@@ -117,10 +118,18 @@ import { poolIntro, poolCta, planningQuestions } from '../data/pool';
 
   @media (min-width: 900px) {
     .water__head {
-      grid-column: 1 / span 7;
+      grid-column: 1 / span 6;
+      grid-row: 1;
     }
     .water__intro {
-      grid-column: 1 / span 7;
+      grid-column: 1 / span 6;
+      grid-row: 2;
+    }
+    .water__eye {
+      grid-column: 7 / -1;
+      grid-row: 1 / span 2;
+      align-self: center;
+      max-width: none;
     }
     .water__questions {
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -140,11 +149,12 @@ import { poolIntro, poolCta, planningQuestions } from '../data/pool';
     }
   }
   @media (min-width: 1100px) {
-    .water__head {
-      grid-column: 1 / span 6;
-    }
+    .water__head,
     .water__intro {
-      grid-column: 1 / span 6;
+      grid-column: 1 / span 5;
+    }
+    .water__eye {
+      grid-column: 7 / -1;
     }
   }
 </style>

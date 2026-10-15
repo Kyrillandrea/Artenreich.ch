@@ -3,6 +3,7 @@ import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import { company, links, nav } from '../data/site';
 import { getLocalImage, getMediaItem } from '../lib/media';
+import { url } from '../lib/url';
 
 const year = new Date().getFullYear();
 const label = getMediaItem('label-bioterra');
@@ -52,9 +53,9 @@ const labelLocal = getLocalImage('label-bioterra');
     <nav class="site-footer__col" id="footer-nav" aria-label="Fussnavigation">
       <h2 class="site-footer__title">Navigation</h2>
       <ul>
-        <li><a href="/">Startseite</a></li>
-        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
-        <li><a href="/kontakt/">Kontakt</a></li>
+        <li><a href={url('/')}>Startseite</a></li>
+        {nav.map((item) => <li><a href={url(item.href)}>{item.label}</a></li>)}
+        <li><a href={url('/kontakt/')}>Kontakt</a></li>
       </ul>
     </nav>
 
@@ -81,7 +82,7 @@ const labelLocal = getLocalImage('label-bioterra');
   <div class="site-footer__bar">
     <div class="container site-footer__bar-inner">
       <p>© {year} {company.legalName}</p>
-      <a href="/datenschutz/">Datenschutz</a>
+      <a href={url('/datenschutz/')}>Datenschutz</a>
     </div>
   </div>
 </footer>

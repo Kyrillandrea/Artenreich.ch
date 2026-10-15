@@ -14,7 +14,9 @@
     "prelaunch": "node scripts/prelaunch-check.mjs",
     "check:content": "node scripts/check-content.mjs",
     "test:ui": "node scripts/test-ui.mjs",
-    "perf": "node scripts/perf.mjs"
+    "perf": "node scripts/perf.mjs",
+    "demo:build": "BASE_PATH=/Artenreich.ch/ SITE_URL=https://kyrillandrea.github.io PUBLIC_DEMO=true astro build",
+    "demo:serve": "node scripts/serve-static.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.7",

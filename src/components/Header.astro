@@ -2,9 +2,10 @@
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import { nav, primaryCta, company } from '../data/site';
+import { url } from '../lib/url';
 
 const current = Astro.url.pathname;
-const isCurrent = (href: string) => current === href || (href !== '/' && current.startsWith(href));
+const isCurrent = (href: string) => current === url(href) || (href !== '/' && current.startsWith(url(href)));
 ---
 
 <header class="site-header" data-header>
@@ -16,7 +17,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
         {
           nav.map((item) => (
             <li>
-              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+              <a href={url(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
                 {item.label}
               </a>
             </li>
@@ -25,7 +26,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
       </ul>
     </nav>
 
-    <a class="btn site-header__cta" href={primaryCta.href} data-cta>
+    <a class="btn site-header__cta" href={url(primaryCta.href)} data-cta>
       {primaryCta.label}
     </a>
 
@@ -57,15 +58,15 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
       {
         nav.map((item) => (
           <li>
-            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+            <a href={url(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
               {item.label}
             </a>
           </li>
         ))
       }
-      <li><a href="/kontakt/" aria-current={isCurrent('/kontakt/') ? 'page' : undefined}>Kontakt</a></li>
+      <li><a href={url('/kontakt/')} aria-current={isCurrent('/kontakt/') ? 'page' : undefined}>Kontakt</a></li>
     </ul>
-    <a class="btn menu-dialog__cta" href={primaryCta.href} data-cta>
+    <a class="btn menu-dialog__cta" href={url(primaryCta.href)} data-cta>
       {primaryCta.label}
       <Icon name="arrow-right" />
     </a>

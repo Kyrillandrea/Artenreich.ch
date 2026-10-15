@@ -36,9 +36,17 @@ Logo: unverändertes Original-PNG (Gold/Braun), nur auf hellem Grund.
 Kapitelabstand `clamp(88px, 11vw, 184px)`. Radius 2 px.
 
 ## Bewegung
+Fünf Signature-Effekte (auf Wunsch des Auftraggebers, nach Vorlagen): 01 Layered Parallax (Hero),
+02 Scroll Text Reveal (Haltung), 03 Scroll-driven Rotation (Jahresrad), 04 Cursor Tracking
+(Wasser-Auge), 05 Stacking Cards (Leistungen, Planungsfragen). Gemeinsame Engine `scripts/motion.ts`.
+
 | Element | Regel |
 |---|---|
-| Hero | Text einmalig ≤ 20 px/1 s gestaffelt; Bildannäherung 1.07 → 1 in 3.2 s; Detailbild mit Bogenmaske |
+| Hero (01) | Ebenen mit Tiefe −0.38 … +0.42 × Scrollweg, Maus-Tiefe bis 40 px (nur Desktop, feiner Zeiger); Text ≤ 20 px/1 s |
+| Haltung (02) | Buchstaben von 12 % Deckkraft/6 px Unschärfe zu voll, gekoppelt an die Position im Viewport (kein Pinning) |
+| Jahreszeiten (03) | Nur Desktop ≥ 1000 × 620 px: Bühne sticky, 4 × 90° mit Verweilzonen; sonst Tabs bzw. Kapitel |
+| Wasser (04) | Pupille ≤ 38 px Richtung Cursor, Ringe abgestuft; Wellen max. 6 gleichzeitig; nur sichtbar aktiv |
+| Karten (05) | Sticky-Versatz 16–22 px, Skalierung bis 0.865, **kein Abdunkeln**; bei Fensterhöhe < 640 px normal |
 | Naturdetails | Parallax ≤ 40 px, nur ≥ 1024 px, nur sichtbare Elemente |
 | Kapitel | Reveal 24 px / 0.9 s; nie dauerhaft unsichtbar |
 | Jahreszeiten | Kreisförmige Maske ≈ 820 ms vom gewählten Tab aus, altes Bild bleibt darunter |

@@ -118,7 +118,7 @@ async function main() {
   }
 
   for (const href of internalLinks) {
-    const res = await fetch(BASE + href, { redirect: 'manual' });
+    const res = await fetch(new URL(BASE).origin + href, { redirect: 'manual' });
     report.links.push({ href, status: res.status });
     if (res.status >= 400) report.problems.push(`Interner Link ${href}: HTTP ${res.status}`);
   }

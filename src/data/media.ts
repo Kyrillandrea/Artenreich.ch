@@ -10,7 +10,7 @@
  * `npm run prelaunch` verhindert einen Livegang ohne lokale Originale.
  */
 
-export type MediaGroup = 'brand' | 'season' | 'service' | 'team' | 'gallery' | 'label';
+export type MediaGroup = 'brand' | 'season' | 'service' | 'team' | 'gallery' | 'label' | 'pool';
 
 export interface MediaItem {
   id: string;
@@ -28,6 +28,8 @@ export interface MediaItem {
   height?: number;
   /** Redaktionelle Hinweise zur Bestätigung (nicht sichtbar) */
   note?: string;
+  /** Ablageordner unter src/assets/ (Standard: originals) */
+  dir?: 'originals' | 'pool';
 }
 
 const WP = 'https://artenreich.ch/wp-content';
@@ -232,10 +234,64 @@ export const media = {
     width: 130,
     height: 130,
   },
+
+  // Naturpool-/Schwimmteich-Aufnahmen, vom Auftraggeber am 15.10.2026 geliefert (unverändert).
+  // Herkunft, Nutzungsrechte und Zuordnung zu Artenreich sind NICHT bestätigt:
+  // keine Bildunterschriften als Referenzprojekt, nur Motivbeschreibungen.
+  'pool-01': {
+    id: 'pool-01',
+    group: 'pool',
+    dir: 'pool',
+    src: '',
+    file: 'pool-01.jpg',
+    alt: 'Naturpool mit Wasserlinie zur Landschaft, Seerosen und Blick auf grüne Hügel.',
+    focus: '32% 60%',
+    note: 'Vom Auftraggeber geliefert. Herkunft und Rechte bestätigen.',
+  },
+  'pool-02': {
+    id: 'pool-02',
+    group: 'pool',
+    dir: 'pool',
+    src: '',
+    file: 'pool-02.jpg',
+    alt: 'Naturpool von oben mit Holzdecks, Seerosen und üppiger Bepflanzung.',
+    note: 'Vom Auftraggeber geliefert. Wirkt wie eine Visualisierung – Herkunft und Rechte bestätigen.',
+  },
+  'pool-03': {
+    id: 'pool-03',
+    group: 'pool',
+    dir: 'pool',
+    src: '',
+    file: 'pool-03.jpg',
+    alt: 'Schwimmteich mit Seerosen vor Natursteinstufen und einem Wohnhaus mit Holzfassade.',
+    note: 'Vom Auftraggeber geliefert. Herkunft und Rechte bestätigen.',
+  },
+  'pool-04': {
+    id: 'pool-04',
+    group: 'pool',
+    dir: 'pool',
+    src: '',
+    file: 'pool-04.jpg',
+    alt: 'Schwimmteich von oben mit badenden Menschen, Flachwasserzone und Blütenstauden.',
+    note: 'Vom Auftraggeber geliefert. Erkennbare Personen – Herkunft, Rechte und Einwilligung bestätigen.',
+  },
+  'pool-05': {
+    id: 'pool-05',
+    group: 'pool',
+    dir: 'pool',
+    src: '',
+    file: 'pool-05.jpg',
+    alt: 'Schwimmteich mit Holzdeck und zwei Liegen vor Seen- und Bergkulisse.',
+    note: 'Vom Auftraggeber geliefert. Herkunft und Rechte bestätigen.',
+  },
 } satisfies Record<string, MediaItem>;
 
 export type MediaId = keyof typeof media;
 
+/** Die 40 Kerndateien der bestehenden Website (ohne Label und ohne gelieferte Poolbilder) */
 export const coreMediaIds = (Object.keys(media) as MediaId[]).filter(
-  (id) => media[id].group !== 'label',
+  (id) => media[id].group !== 'label' && media[id].group !== 'pool',
 );
+
+/** Medien, die von artenreich.ch stammen und per `assets:fetch` gesichert werden */
+export const remoteMediaIds = (Object.keys(media) as MediaId[]).filter((id) => media[id].group !== 'pool');

@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { url } from '../lib/url';
 
 interface Props {
   href: string;
@@ -8,7 +9,7 @@ interface Props {
 const { href, projekt } = Astro.props;
 ---
 
-<a class="sticky-cta" href={href} data-sticky-cta data-projekt={projekt} hidden>
+<a class="sticky-cta" href={url(href)} data-sticky-cta data-projekt={projekt} hidden>
   Projekt anfragen
   <Icon name="arrow-right" size={18} />
 </a>

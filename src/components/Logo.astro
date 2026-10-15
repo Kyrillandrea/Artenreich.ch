@@ -1,5 +1,6 @@
 ---
 import { getLocalImage, getMediaItem } from '../lib/media';
+import { url } from '../lib/url';
 
 interface Props {
   class?: string;
@@ -16,7 +17,7 @@ const src = local ? local.src : item.src;
 const Tag = link ? 'a' : 'span';
 ---
 
-<Tag class:list={['logo', className]} {...(link ? { href: '/', 'aria-label': 'artenreich – zur Startseite' } : {})}>
+<Tag class:list={['logo', className]} {...(link ? { href: url('/'), 'aria-label': 'artenreich – zur Startseite' } : {})}>
   <img
     src={src}
     width={local?.width}

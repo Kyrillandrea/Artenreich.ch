@@ -7,8 +7,13 @@ import sitemap from '@astrojs/sitemap';
 // Für den Livegang: PUBLIC_INDEXING=true setzen (siehe README).
 const indexing = process.env.PUBLIC_INDEXING === 'true';
 
+// Basispfad und Domain sind konfigurierbar (z. B. Vorschau auf GitHub Pages unter /Artenreich.ch/).
+const base = process.env.BASE_PATH || '/';
+const site = process.env.SITE_URL || 'https://artenreich.ch';
+
 export default defineConfig({
-  site: 'https://artenreich.ch',
+  site,
+  base,
   trailingSlash: 'always',
   output: 'static',
   adapter: node({ mode: 'standalone' }),

@@ -14,7 +14,7 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 import sharp from 'sharp';
-import { media } from '../src/data/media.ts';
+import { media, remoteMediaIds } from '../src/data/media.ts';
 
 const root = resolve(import.meta.dirname, '..');
 const outDir = join(root, 'src/assets/originals');
@@ -73,7 +73,7 @@ async function main() {
   const dirIndex = fromDir ? indexDirectory(fromDir) : null;
   const results = { ok: [], skipped: [], failed: [] };
 
-  for (const item of Object.values(media)) {
+  for (const item of remoteMediaIds.map((id) => media[id])) {
     const target = join(outDir, item.file);
     const known = manifest[item.id];
     if (!force && known && existsSync(target) && sha256(await readFile(target)) === known.sha256) {

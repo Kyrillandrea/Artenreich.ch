@@ -6,7 +6,7 @@ import { media, coreMediaIds, type MediaId, type MediaItem } from '../data/media
  * Lokale Originale (nach `npm run assets:fetch`). Vite bündelt nur tatsächlich vorhandene Dateien.
  */
 const localFiles = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/assets/originals/*.{jpg,jpeg,png,webp,JPG,PNG}',
+  ['/src/assets/originals/*.{jpg,jpeg,png,webp,JPG,PNG}', '/src/assets/pool/*.{jpg,jpeg,png,webp}'],
   { eager: true },
 );
 
@@ -15,7 +15,8 @@ export function getMediaItem(id: MediaId): MediaItem {
 }
 
 export function getLocalImage(id: MediaId): ImageMetadata | undefined {
-  return localFiles[`/src/assets/originals/${media[id].file}`]?.default;
+  const item: MediaItem = media[id];
+  return localFiles[`/src/assets/${item.dir ?? 'originals'}/${item.file}`]?.default;
 }
 
 /** Grosse Variante für Grossansichten: lokal optimiert, sonst Original-URL (nur Vorschau). */

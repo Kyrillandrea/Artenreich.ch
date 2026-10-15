@@ -55,6 +55,16 @@ geprüft; bildbezogene Werte (LCP mit Hero-Foto, Bildausschnitte, Logo-Lesbarkei
 Originalbildern wird das Hero-Foto zum LCP-Element. Messung nach `npm run assets:fetch` wiederholen.
 Ziel: LCP ≤ 2.5 s, CLS ≤ 0.1.
 
+## 2a. Nachtrag: fünf Animationseffekte und Web-Demo
+
+| Prüfung | Ergebnis |
+|---|---|
+| Interaktion & Barrierefreiheit inkl. Effekte (`test:ui`) | **49/49** – zusätzlich: 01 Ebenen bewegen sich unterschiedlich (hinten +, vorn −), 02 Buchstaben erblühen beim Scrollen und Überschrift bleibt für Screenreader vollständig, 03 Jahresrad dreht mit dem Scroll, aktive Jahreszeit folgt, Bühne bleibt stehen, Tabs drehen zum Ziel, 04 Auge folgt dem Cursor und erzeugt Wellen, 05 Karten stapeln versetzt und treten zurück (Skalierung ≥ 0.86, kein Abdunkeln), reduzierte Bewegung: alles statisch und vollständig |
+| Darstellung (`qa`) 40 Ansichten | ohne Befund (Standard-Build **und** Demo-Build unter `/Artenreich.ch/`) |
+| Inhaltsprüfung | 257/257 (Standard und Demo) |
+| Formular E2E | 27/27 (Standard-Build); Demo-Build meldet ehrlich «keine Anfrage versendet», Eingaben bleiben erhalten |
+| Demo-Build | Schriften und Assets unter Unterpfad geladen, `noindex` + gesperrte `robots.txt`, keine Konsolenfehler |
+
 ## 3. Nicht geprüft / extern blockiert
 
 - Darstellung mit echten Fotos und Logo (Bildausschnitte, Lesbarkeit der Hero-Schrift auf dem Foto,
