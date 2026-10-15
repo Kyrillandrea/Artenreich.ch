@@ -11,6 +11,7 @@ Stand: 15. Oktober 2026. Getrennt nach **externen Blockern** (verhindern den Liv
 | A2 | **Datenschutzerklärung nicht übernommen** | Quelle `https://artenreich.ch/datenschutz/` nicht abrufbar. Es wurde bewusst kein Rechtstext erfunden. | Text unverändert in `src/content/datenschutz.md` einfügen, mit [`DATENSCHUTZ-ABGLEICH.md`](DATENSCHUTZ-ABGLEICH.md) abgleichen, freigeben lassen, `verified: true`. |
 | A3 | **SMTP-Zugangsdaten fehlen** | Keine Konfiguration vorhanden. | Variablen laut `.env.example` auf dem Server setzen; Versand mit autorisiertem Testziel prüfen. Bis dahin bietet die Website ehrlich den E-Mail-Weg an. |
 | A4 | **Inhaltsänderungen seit dem 15.10.2026 nicht prüfbar** | `artenreich.ch` und `werdeartenreich.ch` nicht erreichbar. | Vor dem Livegang Texte, Team und Kontaktangaben mit der Live-Seite abgleichen (`npm run check:content` prüft die Übernahme aus `src/data/`). |
+| A0 | **GitHub Pages einschalten (Demo)** | Ein Workflow kann Pages mit dem Standard-Token nicht selbst aktivieren. | Repository → Settings → Pages → Build and deployment → Source: «GitHub Actions». Danach den Lauf «Demo auf GitHub Pages» erneut starten (Actions → Re-run) – die Demo erscheint unter https://kyrillandrea.github.io/Artenreich.ch/. |
 | A5 | **Hosting / Domain** | Nicht beauftragt. Die produktive Domain wurde nicht verändert. Die Vorschau läuft auf GitHub Pages (Demo-Modus, noindex). | Node-Host festlegen (oder statischer Host mit E-Mail-Fallback). `PUBLIC_INDEXING=true` erst beim Livegang. |
 
 ## B. Bestätigungen durch Artenreich

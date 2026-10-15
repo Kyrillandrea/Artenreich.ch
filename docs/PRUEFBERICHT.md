@@ -64,6 +64,7 @@ Ziel: LCP ≤ 2.5 s, CLS ≤ 0.1.
 | Inhaltsprüfung | 257/257 (Standard und Demo) |
 | Formular E2E | 27/27 (Standard-Build); Demo-Build meldet ehrlich «keine Anfrage versendet», Eingaben bleiben erhalten |
 | Demo-Build | Schriften und Assets unter Unterpfad geladen, `noindex` + gesperrte `robots.txt`, keine Konsolenfehler |
+| GitHub Actions (Lauf #1, 15.10.2026) | Originalbilder von artenreich.ch auf dem Runner gesichert und optimiert, Demo-Build und Inhaltsprüfung (257/257) erfolgreich. Veröffentlichung blockiert, bis GitHub Pages im Repository aktiviert ist (Settings → Pages → Source: GitHub Actions). |
 
 ## 3. Nicht geprüft / extern blockiert
 
