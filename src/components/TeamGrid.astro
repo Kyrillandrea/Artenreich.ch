@@ -1,0 +1,116 @@
+---
+/** Alle 14 echten Profile mit vorhandenen Biografien. Keine ergänzten Funktionen oder Zitate. */
+import Media from './Media.astro';
+import { team } from '../data/team';
+import { company } from '../data/site';
+
+const [lead, ...others] = team;
+---
+
+<div class="team">
+  <article class="member member--lead grid-12" id={lead.id} aria-labelledby={`${lead.id}-name`}>
+    <div class="member__portrait frame" data-reveal>
+      <Media id={lead.portrait} sizes="(min-width: 1100px) 36vw, (min-width: 700px) 45vw, 100vw" widths={[400, 640, 900, 1080]} />
+    </div>
+    <div class="member__body" data-reveal style="--reveal-delay:120ms">
+      {lead.name === company.contactPerson && <p class="eyebrow">Ansprechperson</p>}
+      <h3 class="h2 member__name" id={`${lead.id}-name`}>{lead.name}</h3>
+      {lead.bio && <p class="lead member__bio">{lead.bio}</p>}
+    </div>
+  </article>
+
+  <ul class="team__list" aria-label="Weitere Teammitglieder">
+    {
+      others.map((member, i) => (
+        <li class="member" id={member.id} data-reveal style={`--reveal-delay:${(i % 3) * 80}ms`}>
+          <article aria-labelledby={`${member.id}-name`}>
+            <div class="member__portrait frame">
+              <Media id={member.portrait} sizes="(min-width: 1100px) 28vw, (min-width: 600px) 45vw, 100vw" widths={[360, 540, 720, 1080]} />
+            </div>
+            <h3 class="h3 member__name" id={`${member.id}-name`}>
+              {member.name}
+            </h3>
+            {member.bio && <p class="member__bio">{member.bio}</p>}
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .member--lead {
+    row-gap: 32px;
+    align-items: start;
+    padding-bottom: clamp(64px, 8vw, 128px);
+    margin-bottom: clamp(64px, 8vw, 128px);
+    border-bottom: 1px solid var(--line);
+  }
+  .member--lead .member__portrait {
+    grid-column: 1 / -1;
+    aspect-ratio: 1;
+  }
+  .member--lead .member__body {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 20px;
+  }
+  .member--lead .member__bio {
+    max-width: 36ch;
+  }
+  @media (min-width: 700px) {
+    .member--lead .member__portrait {
+      grid-column: 1 / span 6;
+    }
+    .member--lead .member__body {
+      grid-column: 7 / -1;
+    }
+  }
+  @media (min-width: 1100px) {
+    .member--lead .member__portrait {
+      grid-column: 1 / span 5;
+    }
+    .member--lead .member__body {
+      grid-column: 7 / span 6;
+    }
+  }
+
+  .team__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 56px 24px;
+  }
+  @media (min-width: 600px) {
+    .team__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .team__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 80px var(--col-gap);
+    }
+  }
+  .member article {
+    display: grid;
+    gap: 16px;
+  }
+  .member__portrait {
+    aspect-ratio: 1;
+  }
+  .member__portrait :global(img) {
+    object-position: 50% 30%;
+  }
+  .member__name {
+    margin-top: 6px;
+  }
+  .team__list .member__name {
+    font-size: clamp(1.75rem, 1vw + 1.4rem, 2.25rem);
+  }
+  .team__list .member__bio {
+    color: var(--fg-muted);
+    max-width: 44ch;
+  }
+</style>

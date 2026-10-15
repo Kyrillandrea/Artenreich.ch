@@ -1,0 +1,398 @@
+---
+import Icon from './Icon.astro';
+import { projectTypes, timeframes, limits } from '../lib/inquiry';
+import { company } from '../data/site';
+
+interface Props {
+  /** Vorauswahl der Projektart (z. B. auf der Naturpool-Seite) */
+  defaultProjekt?: string;
+}
+const { defaultProjekt } = Astro.props;
+const p = 'anfrage';
+---
+
+<form
+  class="inquiry"
+  id={`${p}-form`}
+  action="/api/anfrage/"
+  method="post"
+  data-inquiry-form
+  data-mail-to={company.email.address}
+  aria-describedby={`${p}-required-note`}
+>
+  <div class="inquiry__summary" id={`${p}-summary`} tabindex="-1" data-error-summary hidden>
+    <h3 class="inquiry__summary-title" id={`${p}-summary-title`}>Bitte prüfen Sie folgende Angaben:</h3>
+    <ul data-error-list></ul>
+  </div>
+
+  <p class="inquiry__note" id={`${p}-required-note`}>
+    Pflichtfelder sind nur Name und E-Mail. Alle weiteren Angaben helfen bei der Einordnung.
+  </p>
+
+  <div class="inquiry__row">
+    <div class="field" data-field="name">
+      <label for={`${p}-name`}>Name <span class="field__req">Pflichtfeld</span></label>
+      <input
+        id={`${p}-name`}
+        name="name"
+        type="text"
+        autocomplete="name"
+        required
+        maxlength={limits.name}
+        aria-describedby={`${p}-name-error`}
+      />
+      <p class="field__error" id={`${p}-name-error`} data-error-for="name" hidden></p>
+    </div>
+
+    <div class="field" data-field="email">
+      <label for={`${p}-email`}>E-Mail <span class="field__req">Pflichtfeld</span></label>
+      <input
+        id={`${p}-email`}
+        name="email"
+        type="email"
+        inputmode="email"
+        autocomplete="email"
+        autocapitalize="off"
+        spellcheck="false"
+        required
+        maxlength={limits.email}
+        aria-describedby={`${p}-email-error`}
+      />
+      <p class="field__error" id={`${p}-email-error`} data-error-for="email" hidden></p>
+    </div>
+  </div>
+
+  <fieldset class="field field--choices" data-field="projekt" aria-describedby={`${p}-projekt-error`}>
+    <legend>Projektart <span class="field__opt">optional</span></legend>
+    <div class="choices">
+      {
+        projectTypes.map((type) => (
+          <label class="choice">
+            <input type="radio" name="projekt" value={type.value} checked={defaultProjekt === type.value} />
+            <span>{type.label}</span>
+          </label>
+        ))
+      }
+    </div>
+    <p class="field__error" id={`${p}-projekt-error`} data-error-for="projekt" hidden></p>
+  </fieldset>
+
+  <div class="inquiry__row">
+    <div class="field" data-field="region">
+      <label for={`${p}-region`}>Region <span class="field__opt">optional</span></label>
+      <input id={`${p}-region`} name="region" type="text" maxlength={limits.region} aria-describedby={`${p}-region-hint`} />
+      <p class="field__hint" id={`${p}-region-hint`}>PLZ oder Ort Ihres Grundstücks</p>
+    </div>
+
+    <div class="field" data-field="telefon">
+      <label for={`${p}-telefon`}>Telefon <span class="field__opt">optional</span></label>
+      <input
+        id={`${p}-telefon`}
+        name="telefon"
+        type="tel"
+        autocomplete="tel"
+        maxlength={limits.telefon}
+        aria-describedby={`${p}-telefon-error`}
+      />
+      <p class="field__error" id={`${p}-telefon-error`} data-error-for="telefon" hidden></p>
+    </div>
+  </div>
+
+  <fieldset class="field field--choices" data-field="zeitrahmen" aria-describedby={`${p}-zeitrahmen-error`}>
+    <legend>Ungefährer Zeitrahmen <span class="field__opt">optional</span></legend>
+    <div class="choices choices--compact">
+      {
+        timeframes.map((tf) => (
+          <label class="choice">
+            <input type="radio" name="zeitrahmen" value={tf.value} />
+            <span>{tf.label}</span>
+          </label>
+        ))
+      }
+    </div>
+    <p class="field__error" id={`${p}-zeitrahmen-error`} data-error-for="zeitrahmen" hidden></p>
+  </fieldset>
+
+  <div class="field" data-field="nachricht">
+    <label for={`${p}-nachricht`}>Nachricht <span class="field__opt">optional</span></label>
+    <textarea
+      id={`${p}-nachricht`}
+      name="nachricht"
+      rows="5"
+      maxlength={limits.nachricht}
+      aria-describedby={`${p}-nachricht-hint`}></textarea>
+    <p class="field__hint" id={`${p}-nachricht-hint`}>Erzählen Sie kurz von Ihrem Garten und Ihren Vorstellungen.</p>
+  </div>
+
+  <div class="inquiry__hp" aria-hidden="true">
+    <label for={`${p}-hp`}>Dieses Feld bitte leer lassen</label>
+    <input id={`${p}-hp`} name="hp_feld" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+  <input type="hidden" name="t" value="" data-elapsed />
+
+  <p class="inquiry__privacy">
+    Informationen zur Bearbeitung Ihrer Angaben finden Sie in der <a href="/datenschutz/">Datenschutzerklärung</a>.
+  </p>
+
+  <div class="inquiry__actions">
+    <button class="btn inquiry__submit" type="submit" data-submit>
+      <span data-submit-label>Anfrage senden</span>
+      <Icon name="arrow-right" />
+    </button>
+    <a class="text-link inquiry__mailto" href={company.email.href} data-mailto>
+      <Icon name="mail" size={18} />
+      Anfrage per E-Mail
+    </a>
+  </div>
+
+  <div class="inquiry__status" role="status" aria-live="polite" data-status></div>
+</form>
+
+<template data-success-template>
+  <div class="inquiry-success" tabindex="-1" data-success>
+    <p class="eyebrow">Anfrage übermittelt</p>
+    <h3 class="h3">Vielen Dank. Ihre Anfrage ist bei uns eingegangen.</h3>
+    <p>Wir haben Ihre Angaben erhalten. Bei Fragen erreichen Sie uns unter <a href={company.phone.href}>{company.phone.display}</a>.</p>
+  </div>
+</template>
+
+<style>
+  .inquiry {
+    display: grid;
+    gap: 28px;
+  }
+  .inquiry__note {
+    font-size: var(--fs-small);
+    color: var(--fg-muted);
+  }
+  .inquiry__row {
+    display: grid;
+    gap: 28px;
+  }
+  @media (min-width: 640px) {
+    .inquiry__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+  }
+  .field {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    min-width: 0;
+  }
+  fieldset.field {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .field label,
+  .field legend {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .field legend {
+    padding: 0;
+    margin-bottom: 12px;
+  }
+  .field__req,
+  .field__opt {
+    margin-left: 6px;
+    font-weight: 450;
+    color: var(--fg-muted);
+  }
+  .field input[type='text'],
+  .field input[type='email'],
+  .field input[type='tel'],
+  .field textarea {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 14px;
+    border: 1px solid #767b74;
+    border-radius: var(--radius);
+    background: #fffdf8;
+    font-size: 1.0625rem;
+    line-height: 1.4;
+    transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+  }
+  .field textarea {
+    min-height: 140px;
+    resize: vertical;
+  }
+  .field input:hover,
+  .field textarea:hover {
+    border-color: var(--c-ink);
+  }
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    outline: 2px solid var(--c-pine);
+    outline-offset: 1px;
+    border-color: var(--c-pine);
+  }
+  .field [aria-invalid='true'] {
+    border-color: var(--c-error);
+    box-shadow: inset 4px 0 0 var(--c-error);
+  }
+  .field__hint {
+    font-size: var(--fs-small);
+    color: var(--fg-muted);
+  }
+  .field__error {
+    display: flex;
+    gap: 8px;
+    font-size: var(--fs-small);
+    font-weight: 550;
+    color: var(--c-error);
+  }
+  .field__error::before {
+    content: '!';
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    border-radius: 50%;
+    background: var(--c-error);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .field__error[hidden] {
+    display: none;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  @media (min-width: 640px) {
+    .choices {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .choice {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius);
+    background: #fffdf8;
+    font-size: 0.9375rem;
+    font-weight: 500 !important;
+    line-height: 1.25;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+  }
+  .choice:hover {
+    border-color: var(--c-ink);
+  }
+  .choice input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--c-pine);
+  }
+  .choice:has(input:checked) {
+    border-color: var(--c-pine);
+    background: #eef1e8;
+    box-shadow: inset 0 0 0 1px var(--c-pine);
+  }
+  .choice:has(input:focus-visible) {
+    outline: 2px solid var(--c-pine);
+    outline-offset: 2px;
+  }
+  .choice input:focus-visible {
+    outline: none;
+  }
+
+  .inquiry__hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .inquiry__privacy {
+    font-size: var(--fs-small);
+    color: var(--fg-muted);
+  }
+  .inquiry__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 28px;
+  }
+  .inquiry__mailto {
+    font-size: 1rem;
+  }
+  .inquiry__submit[aria-busy='true'] {
+    opacity: 0.75;
+    cursor: progress;
+  }
+  .inquiry__status:empty {
+    display: none;
+  }
+  .inquiry__status {
+    padding: 18px 20px;
+    border-left: 3px solid var(--c-pine);
+    background: #eef1e8;
+    font-size: var(--fs-small);
+  }
+  .inquiry__status[data-tone='error'] {
+    border-left-color: var(--c-error);
+    background: #f6e8e3;
+  }
+  .inquiry__status p + p {
+    margin-top: 8px;
+  }
+
+  .inquiry__summary {
+    padding: 20px 22px;
+    border: 2px solid var(--c-error);
+    border-radius: var(--radius);
+    background: #fbf1ed;
+  }
+  .inquiry__summary:focus-visible {
+    outline: 2px solid var(--c-error);
+    outline-offset: 3px;
+  }
+  .inquiry__summary-title {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 650;
+    color: var(--c-error);
+  }
+  .inquiry__summary ul {
+    margin: 10px 0 0;
+    padding-left: 20px;
+  }
+  .inquiry__summary a {
+    color: var(--c-error);
+    font-weight: 550;
+  }
+</style>
+
+<style is:global>
+  .inquiry-success {
+    display: grid;
+    gap: 16px;
+    padding: clamp(28px, 4vw, 48px);
+    border-left: 3px solid var(--c-pine);
+    background: #eef1e8;
+  }
+  .inquiry-success:focus {
+    outline: none;
+  }
+</style>
+
+<script>
+  import { initInquiryForms } from '../scripts/form';
+  initInquiryForms();
+</script>

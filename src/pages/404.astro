@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import { nav } from '../data/site';
+---
+
+<BaseLayout title="Seite nicht gefunden" noindex stickyCta={false}>
+  <PageIntro eyebrow="Fehler 404" title="Diese Seite gibt es nicht." lead="Vielleicht finden Sie hier, was Sie suchen:">
+    <ul class="nf-links">
+      <li><a href="/">Startseite</a></li>
+      {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      <li><a href="/kontakt/">Kontakt</a></li>
+    </ul>
+  </PageIntro>
+</BaseLayout>
+
+<style>
+  .nf-links {
+    list-style: none;
+    margin: 32px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+  }
+  .nf-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 550;
+  }
+</style>

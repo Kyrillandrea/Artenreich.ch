@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import TeamGrid from '../../components/TeamGrid.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { philosophy } from '../../data/content';
+import { links } from '../../data/site';
+---
+
+<BaseLayout
+  title="Über uns – das Team von Artenreich"
+  description="Lernen Sie das Team von Artenreich in Kloten kennen: Menschen, die mit der Natur verbunden sind und Lebensräume in Gärten schaffen."
+  ogImage="team-patrick-bolinger"
+>
+  <PageIntro eyebrow="Über uns" title={['Mit der Natur verbunden.', 'Als Team verwurzelt.']} compact>
+    <p class="team-intro">{philosophy[2]}</p>
+  </PageIntro>
+
+  <section class="section team-section" aria-labelledby="team-title">
+    <div class="container">
+      <h2 id="team-title" class="eyebrow team-section__title">Unser Team</h2>
+      <TeamGrid />
+    </div>
+  </section>
+
+  <CtaBand title="Werde artenreich" href={links.recruiting.href} label="Zur Recruiting-Website" external>
+    <p>Mehr über die Arbeit bei Artenreich erfahren Sie auf werdeartenreich.ch.</p>
+  </CtaBand>
+</BaseLayout>
+
+<style>
+  .team-intro {
+    margin-top: clamp(28px, 3vw, 44px);
+    max-width: 52ch;
+    font-size: clamp(1.125rem, 0.4vw + 1rem, 1.3125rem);
+    color: var(--fg-muted);
+  }
+  .team-section {
+    padding-top: clamp(16px, 3vw, 48px);
+  }
+  .team-section__title {
+    margin-bottom: clamp(32px, 4vw, 56px);
+  }
+</style>

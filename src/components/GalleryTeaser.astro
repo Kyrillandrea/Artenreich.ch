@@ -1,0 +1,140 @@
+---
+/** Startseite, Kapitel 6: kuratierter Einstieg in die Impressionen */
+import Media from './Media.astro';
+import Icon from './Icon.astro';
+import { galleryTeaser } from '../data/content';
+import { getMediaItem } from '../lib/media';
+---
+
+<section class="teaser section" id="impressionen" aria-labelledby="teaser-title">
+  <div class="container">
+    <div class="teaser__head" data-reveal>
+      <div>
+        <p class="eyebrow">Impressionen</p>
+        <h2 id="teaser-title" class="h2 teaser__title">Gärten, die leben.</h2>
+      </div>
+      <a class="text-link teaser__all" href="/impressionen/">
+        Alle Impressionen ansehen
+        <Icon name="arrow-right" size={18} />
+      </a>
+    </div>
+
+    <ul class="teaser__mosaic">
+      {
+        galleryTeaser.map((id, i) => (
+          <li class={`teaser__item teaser__item--${i + 1}`} data-reveal style={`--reveal-delay:${(i % 3) * 90}ms`}>
+            <a class="teaser__link" href={`/impressionen/#${id}`}>
+              <span class="frame teaser__frame">
+                <Media id={id} sizes="(min-width: 1100px) 40vw, (min-width: 700px) 50vw, 100vw" widths={[480, 720, 960, 1280]} />
+              </span>
+              <span class="teaser__caption">{getMediaItem(id).alt}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .teaser__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px 48px;
+    margin-bottom: clamp(40px, 6vw, 88px);
+  }
+  .teaser__title {
+    margin-top: 20px;
+  }
+  .teaser__mosaic {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(16px, 2vw, 32px);
+  }
+  .teaser__item--1 {
+    grid-column: 1 / -1;
+  }
+  .teaser__link {
+    display: grid;
+    gap: 12px;
+    text-decoration: none;
+    border-radius: var(--radius);
+  }
+  .teaser__frame {
+    display: block;
+    aspect-ratio: 4 / 5;
+  }
+  .teaser__item--1 .teaser__frame {
+    aspect-ratio: 3 / 2;
+  }
+  .teaser__frame :global(img) {
+    transition: transform 900ms var(--ease-out);
+  }
+  .teaser__link:hover .teaser__frame :global(img),
+  .teaser__link:focus-visible .teaser__frame :global(img) {
+    transform: scale(1.025);
+  }
+  .teaser__caption {
+    min-width: 0;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    font-size: var(--fs-small);
+    line-height: 1.45;
+    color: var(--fg-muted);
+    max-width: 40ch;
+  }
+  .teaser__link:hover .teaser__caption {
+    color: var(--fg);
+  }
+
+  @media (min-width: 900px) {
+    .teaser__mosaic {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+    .teaser__item--1 {
+      grid-column: 1 / span 7;
+      grid-row: 1 / span 2;
+    }
+    .teaser__item--1 .teaser__frame {
+      aspect-ratio: 4 / 5;
+    }
+    .teaser__item--2 {
+      grid-column: 8 / span 5;
+    }
+    .teaser__item--2 .teaser__frame {
+      aspect-ratio: 4 / 3;
+    }
+    .teaser__item--3 {
+      grid-column: 9 / span 4;
+      margin-top: clamp(8px, 2vw, 32px);
+    }
+    .teaser__item--3 .teaser__frame {
+      aspect-ratio: 1;
+    }
+    .teaser__item--4 {
+      grid-column: 2 / span 5;
+      margin-top: clamp(24px, 4vw, 64px);
+    }
+    .teaser__item--4 .teaser__frame {
+      aspect-ratio: 4 / 3;
+    }
+    .teaser__item--5 {
+      grid-column: 8 / span 4;
+      margin-top: clamp(64px, 9vw, 152px);
+    }
+    .teaser__item--5 .teaser__frame {
+      aspect-ratio: 3 / 4;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .teaser__frame :global(img) {
+      transition: none;
+    }
+  }
+</style>

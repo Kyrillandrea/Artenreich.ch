@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import HabitatIntro from '../components/HabitatIntro.astro';
+import WaterSection from '../components/WaterSection.astro';
+import ServiceChapters from '../components/ServiceChapters.astro';
+import Seasons from '../components/Seasons.astro';
+import GalleryTeaser from '../components/GalleryTeaser.astro';
+import TeamTeaser from '../components/TeamTeaser.astro';
+import InquirySection from '../components/InquirySection.astro';
+---
+
+<BaseLayout stickyCta={{ href: '#anfrage' }}>
+  <Hero />
+  <HabitatIntro />
+  <WaterSection />
+  <ServiceChapters linkToDetail />
+  <Seasons />
+  <GalleryTeaser />
+  <TeamTeaser />
+  <InquirySection />
+</BaseLayout>

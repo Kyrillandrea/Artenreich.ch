@@ -1,0 +1,309 @@
+---
+/**
+ * Alle 18 Galerieaufnahmen mit zugänglicher Grossansicht.
+ * Ohne Skript öffnet jeder Link das Bild direkt; mit Skript eine Grossansicht (Dialog)
+ * mit Pfeiltasten, Wischgesten, Escape und Fokus-Rückgabe.
+ */
+import Media from './Media.astro';
+import Icon from './Icon.astro';
+import { gallery } from '../data/content';
+import { getFullSrc, getMediaItem } from '../lib/media';
+
+// Redaktioneller Rhythmus im 12er-Raster: Zeilen mit 2 bzw. 3 Bildern
+const rows = [
+  [7, 5],
+  [4, 4, 4],
+  [5, 7],
+  [4, 4, 4],
+  [7, 5],
+  [4, 4, 4],
+  [4, 4, 4],
+];
+const ratios: Record<number, string> = { 7: '4 / 3', 5: '4 / 5', 4: '1 / 1' };
+const layout: { span: number; ratio: string }[] = [];
+rows.forEach((row, r) =>
+  row.forEach((span, c) => {
+    const ratio = span === 4 ? (c === 1 && r % 2 ? '3 / 4' : '1 / 1') : ratios[span];
+    layout.push({ span, ratio });
+  }),
+);
+const fullSources = await Promise.all(gallery.map((id) => getFullSrc(id)));
+---
+
+<ul class="gallery" data-lightbox-gallery>
+  {
+    gallery.map((id, i) => {
+      const item = getMediaItem(id);
+      const { span, ratio } = layout[i];
+      const number = String(i + 1).padStart(2, '0');
+      return (
+        <li class="gallery__item" id={id} style={`--span:${span};--ratio:${ratio}`}>
+          <a class="gallery__link" href={fullSources[i]} data-lightbox-item data-caption={item.alt} data-index={i}>
+            <span class="frame gallery__frame">
+              <Media
+                id={id}
+                alt=""
+                sizes={span === 7 ? '(min-width: 1100px) 56vw, (min-width: 700px) 50vw, 100vw' : '(min-width: 1100px) 32vw, (min-width: 700px) 50vw, 50vw'}
+                widths={[400, 640, 960, 1280, 1600]}
+              />
+            </span>
+            <span class="gallery__caption">
+              <span class="gallery__num" aria-hidden="true">{number}</span>
+              <span>{item.alt}</span>
+              <span class="sr-only"> – Grossansicht öffnen</span>
+            </span>
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<dialog class="lightbox" aria-label="Grossansicht" data-lightbox>
+  <div class="lightbox__bar">
+    <p class="lightbox__count" data-lightbox-count></p>
+    <button class="lightbox__btn lightbox__close" type="button" data-lightbox-close>
+      <span>Schliessen</span>
+      <Icon name="close" size={22} />
+    </button>
+  </div>
+  <figure class="lightbox__figure">
+    <div class="lightbox__img-wrap">
+      <img class="lightbox__img" alt="" data-lightbox-img />
+    </div>
+    <figcaption class="lightbox__caption" data-lightbox-caption></figcaption>
+  </figure>
+  <div class="lightbox__nav">
+    <button class="lightbox__btn" type="button" data-lightbox-prev>
+      <Icon name="arrow-left" size={22} />
+      <span>Vorheriges Bild</span>
+    </button>
+    <button class="lightbox__btn" type="button" data-lightbox-next>
+      <span>Nächstes Bild</span>
+      <Icon name="arrow-right" size={22} />
+    </button>
+  </div>
+</dialog>
+
+<style>
+  .gallery {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 14px;
+  }
+  .gallery__item:nth-child(3n + 1) {
+    grid-column: 1 / -1;
+  }
+  .gallery__item:target .gallery__frame {
+    outline: 2px solid var(--c-pine);
+    outline-offset: 6px;
+  }
+  .gallery__link {
+    display: grid;
+    gap: 12px;
+    text-decoration: none;
+    border-radius: var(--radius);
+  }
+  .gallery__frame {
+    display: block;
+    aspect-ratio: 4 / 5;
+  }
+  .gallery__item:nth-child(3n + 1) .gallery__frame {
+    aspect-ratio: 3 / 2;
+  }
+  .gallery__frame :global(img) {
+    transition: transform 900ms var(--ease-out);
+  }
+  .gallery__link:hover .gallery__frame :global(img),
+  .gallery__link:focus-visible .gallery__frame :global(img) {
+    transform: scale(1.025);
+  }
+  .gallery__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    font-size: var(--fs-small);
+    line-height: 1.45;
+    color: var(--fg-muted);
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+  @media (min-width: 700px) {
+    .gallery__caption {
+      flex-direction: row;
+      gap: 12px;
+    }
+  }
+  .gallery__link:hover .gallery__caption {
+    color: var(--fg);
+  }
+  .gallery__num {
+    flex: none;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--accent-text);
+  }
+
+  @media (min-width: 700px) {
+    .gallery {
+      gap: 48px 24px;
+    }
+    .gallery__item:nth-child(3n + 1) {
+      grid-column: auto;
+    }
+    .gallery__item:nth-child(4n + 1),
+    .gallery__item:nth-child(4n + 4) {
+      grid-column: auto;
+    }
+    .gallery__item .gallery__frame,
+    .gallery__item:nth-child(3n + 1) .gallery__frame {
+      aspect-ratio: 4 / 5;
+    }
+    .gallery__item:nth-child(4n + 1) .gallery__frame,
+    .gallery__item:nth-child(4n + 4) .gallery__frame {
+      aspect-ratio: 4 / 3;
+    }
+  }
+  @media (min-width: 1100px) {
+    .gallery {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 64px var(--col-gap);
+      align-items: start;
+    }
+    .gallery__item,
+    .gallery__item:nth-child(3n + 1),
+    .gallery__item:nth-child(4n + 1),
+    .gallery__item:nth-child(4n + 4) {
+      grid-column: span var(--span);
+    }
+    .gallery__item .gallery__frame,
+    .gallery__item:nth-child(3n + 1) .gallery__frame,
+    .gallery__item:nth-child(4n + 1) .gallery__frame,
+    .gallery__item:nth-child(4n + 4) .gallery__frame {
+      aspect-ratio: var(--ratio);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gallery__frame :global(img) {
+      transition: none;
+    }
+  }
+
+  /* Grossansicht */
+  .lightbox {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: max(12px, env(safe-area-inset-top)) var(--gutter) max(16px, env(safe-area-inset-bottom));
+    border: 0;
+    background: #0f1f19;
+    color: var(--c-on-dark);
+    --focus: var(--c-on-dark);
+  }
+  .lightbox[open] {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+  .lightbox::backdrop {
+    background: #0f1f19;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .lightbox[open] {
+      animation: lightbox-in 280ms var(--ease-out);
+    }
+    .lightbox__img.is-loading {
+      opacity: 0.55;
+    }
+    .lightbox__img {
+      transition: opacity 260ms ease;
+    }
+    @keyframes lightbox-in {
+      from {
+        opacity: 0;
+      }
+    }
+  }
+  .lightbox__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .lightbox__count {
+    font-size: var(--fs-small);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+  .lightbox__figure {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 12px;
+    min-height: 0;
+  }
+  .lightbox__img-wrap {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    touch-action: pan-y;
+  }
+  .lightbox__img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    user-select: none;
+  }
+  .lightbox__caption {
+    text-align: center;
+    font-size: var(--fs-small);
+    color: var(--c-on-dark-muted);
+    min-height: 1.6em;
+  }
+  .lightbox__nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .lightbox__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 10px 16px;
+    border: 1px solid var(--c-line-dark);
+    border-radius: var(--radius);
+    background: transparent;
+    color: inherit;
+    font-size: 0.9375rem;
+    font-weight: 550;
+  }
+  .lightbox__btn:hover {
+    background: rgba(244, 241, 233, 0.08);
+  }
+  @media (max-width: 480px) {
+    .lightbox__nav .lightbox__btn span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+    .lightbox__nav .lightbox__btn {
+      min-width: 56px;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  import { initLightbox } from '../scripts/lightbox';
+  initLightbox();
+</script>

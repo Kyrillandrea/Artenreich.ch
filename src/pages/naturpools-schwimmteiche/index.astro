@@ -1,0 +1,263 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import WaterRings from '../../components/WaterRings.astro';
+import Media from '../../components/Media.astro';
+import Faq from '../../components/Faq.astro';
+import Icon from '../../components/Icon.astro';
+import InquirySection from '../../components/InquirySection.astro';
+import { poolIntro, poolCta, planningQuestions, poolFaq, poolMedia } from '../../data/pool';
+import { services } from '../../data/content';
+
+const care = services.find((s) => s.id === 'betreuung')!;
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: poolFaq.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+
+<BaseLayout
+  title="Naturpools und Schwimmteiche anfragen"
+  description="Naturpool oder Schwimmteich im eigenen Garten? Planungsfragen, Pflege und häufige Fragen – und der direkte Weg zur Anfrage bei Artenreich."
+  ogImage="galerie-18"
+  stickyCta={{ href: '#anfrage', projekt: 'naturpool' }}
+  jsonLd={[faqSchema]}
+>
+  <PageIntro eyebrow="Naturpools & Schwimmteiche" title="Naturpools und Schwimmteiche" lead="Wasser erleben. Im eigenen Garten." theme="pine" compact>
+    <div class="pool-intro">
+      <p>{poolIntro}</p>
+      <a class="btn" href="#anfrage" data-projekt={poolCta.projekt}>
+        {poolCta.label}
+        <Icon name="arrow-right" />
+      </a>
+    </div>
+    <div class="pool-intro__rings" slot="after">
+      <WaterRings />
+    </div>
+  </PageIntro>
+
+  {
+    poolMedia.length > 0 && (
+      <section class="section pool-media" aria-label="Aufnahmen">
+        <div class="container pool-media__grid">
+          {poolMedia.map((m) => (
+            <figure>
+              <div class="frame">
+                <Media id={m.image} sizes="(min-width: 900px) 50vw, 100vw" />
+              </div>
+              <figcaption>{m.caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section planning" id="planung" aria-labelledby="planning-title">
+    <div class="container grid-12 planning__grid">
+      <div class="planning__head" data-reveal>
+        <p class="eyebrow">Planung</p>
+        <h2 id="planning-title" class="h2">Fragen der Planung</h2>
+      </div>
+      <figure class="planning__img" data-reveal>
+        <div data-parallax="0.07">
+          <div class="frame planning__frame">
+            <Media id="galerie-18" sizes="(min-width: 1100px) 34vw, (min-width: 700px) 40vw, 100vw" />
+          </div>
+        </div>
+      </figure>
+      <ol class="planning__list">
+        {
+          planningQuestions.map((item, i) => (
+            <li data-reveal style={`--reveal-delay:${i * 80}ms`}>
+              <span class="planning__num" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <h3 class="h3 planning__title">{item.title}</h3>
+                <p>{item.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section theme-sand care" id="pflege" aria-labelledby="care-title">
+    <div class="container grid-12 care__grid">
+      <div class="care__media frame" data-reveal>
+        <Media id={care.image} sizes="(min-width: 900px) 50vw, 100vw" />
+      </div>
+      <div class="care__text" data-reveal style="--reveal-delay:120ms">
+        <p class="eyebrow">Pflege</p>
+        <h2 id="care-title" class="h2">Pflege und Betreuung</h2>
+        <p class="lead">{care.text}</p>
+        <p class="muted">{planningQuestions[3].text} Pflegeaufgaben und mögliche Betreuung werden im Rahmen der Planung geklärt.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section faq-section" id="fragen" aria-labelledby="faq-title">
+    <div class="container grid-12 faq-section__grid">
+      <div class="faq-section__head" data-reveal>
+        <p class="eyebrow">Häufige Fragen</p>
+        <h2 id="faq-title" class="h2">Gut zu wissen</h2>
+      </div>
+      <div class="faq-section__list" data-reveal>
+        <Faq items={poolFaq} id="pool-faq" />
+      </div>
+    </div>
+  </section>
+
+  <InquirySection
+    title="Ihr Vorhaben besprechen"
+    intro={poolFaq[0].a}
+    defaultProjekt="naturpool"
+    eyebrow="Anfrage Naturpool"
+  />
+</BaseLayout>
+
+<style>
+  .pool-intro {
+    display: grid;
+    gap: 32px;
+    justify-items: start;
+    margin-top: clamp(32px, 4vw, 56px);
+    max-width: 38rem;
+    font-size: clamp(1.125rem, 0.4vw + 1rem, 1.3125rem);
+    color: var(--fg-muted);
+  }
+  .pool-intro p {
+    color: var(--c-on-dark);
+  }
+  .pool-intro__rings {
+    position: absolute;
+    width: clamp(480px, 62vw, 980px);
+    right: clamp(-360px, -18vw, -140px);
+    bottom: clamp(-380px, -22vw, -160px);
+    pointer-events: none;
+  }
+
+  .planning__grid {
+    row-gap: clamp(40px, 5vw, 72px);
+    align-items: start;
+  }
+  .planning__head,
+  .planning__img,
+  .planning__list {
+    grid-column: 1 / -1;
+  }
+  .planning__frame {
+    aspect-ratio: 4 / 5;
+  }
+  .planning__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .planning__list li {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 16px;
+    padding-block: 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .planning__num {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--c-sage-ink);
+  }
+  .planning__title {
+    margin-bottom: 10px;
+  }
+  .planning__list p {
+    color: var(--fg-muted);
+    max-width: 46ch;
+  }
+  @media (min-width: 700px) {
+    .planning__img {
+      grid-column: 1 / span 5;
+      grid-row: 2;
+      position: sticky;
+      top: calc(var(--header-h) + 32px);
+    }
+    .planning__list {
+      grid-column: 7 / -1;
+      grid-row: 2;
+    }
+  }
+  @media (min-width: 1100px) {
+    .planning__head {
+      grid-column: 1 / span 6;
+    }
+    .planning__img {
+      grid-column: 1 / span 4;
+    }
+    .planning__list {
+      grid-column: 6 / span 7;
+    }
+  }
+
+  .care__grid {
+    row-gap: 40px;
+    align-items: center;
+  }
+  .care__media,
+  .care__text {
+    grid-column: 1 / -1;
+  }
+  .care__media {
+    aspect-ratio: 4 / 3;
+  }
+  .care__text {
+    display: grid;
+    gap: 20px;
+  }
+  .care__text .muted {
+    max-width: 46ch;
+  }
+  @media (min-width: 900px) {
+    .care__media {
+      grid-column: 1 / span 6;
+    }
+    .care__text {
+      grid-column: 8 / -1;
+    }
+  }
+
+  .faq-section__grid {
+    row-gap: 40px;
+  }
+  .faq-section__head,
+  .faq-section__list {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 1000px) {
+    .faq-section__head {
+      grid-column: 1 / span 4;
+    }
+    .faq-section__list {
+      grid-column: 6 / -1;
+    }
+  }
+
+  .pool-media__grid {
+    display: grid;
+    gap: 32px;
+  }
+  @media (min-width: 900px) {
+    .pool-media__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

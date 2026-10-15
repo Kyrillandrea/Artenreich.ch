@@ -1,0 +1,213 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { company, links, nav } from '../data/site';
+import { getLocalImage, getMediaItem } from '../lib/media';
+
+const year = new Date().getFullYear();
+const label = getMediaItem('label-bioterra');
+const labelLocal = getLocalImage('label-bioterra');
+---
+
+<footer class="site-footer" data-footer>
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <Logo class="site-footer__logo" />
+      <p class="site-footer__legal">{company.legalName}</p>
+      <a class="site-footer__label" href={links.bioterra.href} rel="noopener">
+        <img
+          src={labelLocal ? labelLocal.src : label.src}
+          width={label.width}
+          height={label.height}
+          alt={label.alt}
+          loading="lazy"
+          decoding="async"
+          referrerpolicy={labelLocal ? undefined : 'no-referrer'}
+        />
+        <span class="sr-only">(Bioterra – Naturgarten-Profis, externe Website)</span>
+      </a>
+    </div>
+
+    <div class="site-footer__col">
+      <h2 class="site-footer__title">Kontakt</h2>
+      <address>
+        <p>
+          <span class="site-footer__meta">{company.office.label}</span>
+          {company.office.street}<br />
+          {company.office.postalCode} {company.office.locality}
+        </p>
+        <p>
+          <span class="site-footer__meta">{company.depot.label}</span>
+          {company.depot.street}<br />
+          {company.depot.postalCode} {company.depot.locality}
+        </p>
+        <p class="site-footer__direct">
+          <a href={company.phone.href}><Icon name="phone" size={18} />{company.phone.display}</a>
+          <a href={company.email.href}><Icon name="mail" size={18} />{company.email.display}</a>
+          <a href={links.map.href} rel="noopener"><Icon name="pin" size={18} />{links.map.label}</a>
+        </p>
+      </address>
+    </div>
+
+    <nav class="site-footer__col" id="footer-nav" aria-label="Fussnavigation">
+      <h2 class="site-footer__title">Navigation</h2>
+      <ul>
+        <li><a href="/">Startseite</a></li>
+        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        <li><a href="/kontakt/">Kontakt</a></li>
+      </ul>
+    </nav>
+
+    <div class="site-footer__col">
+      <h2 class="site-footer__title">Mitarbeiten</h2>
+      <p class="site-footer__recruit">
+        <a class="text-link" href={links.recruiting.href} rel="noopener">
+          {links.recruiting.label}
+          <Icon name="arrow-up-right" size={18} />
+        </a>
+      </p>
+      <h2 class="site-footer__title site-footer__title--social">Folgen</h2>
+      <ul class="site-footer__social">
+        <li>
+          <a href={links.instagram.href} rel="noopener"><Icon name="instagram" size={20} />{links.instagram.label}</a>
+        </li>
+        <li>
+          <a href={links.facebook.href} rel="noopener"><Icon name="facebook" size={20} />{links.facebook.label}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="site-footer__bar">
+    <div class="container site-footer__bar-inner">
+      <p>© {year} {company.legalName}</p>
+      <a href="/datenschutz/">Datenschutz</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--c-sand);
+    color: var(--c-ink);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+  }
+  .site-footer__grid {
+    display: grid;
+    gap: 48px 32px;
+    padding-block: clamp(64px, 8vw, 112px) clamp(48px, 6vw, 80px);
+  }
+  @media (min-width: 700px) {
+    .site-footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .site-footer__grid {
+      grid-template-columns: 1.3fr 1.2fr 0.8fr 1fr;
+    }
+  }
+  .site-footer :global(.site-footer__logo) {
+    --logo-h: 56px;
+  }
+  .site-footer__legal {
+    margin-top: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .site-footer__label {
+    display: inline-block;
+    margin-top: 24px;
+    border-radius: var(--radius);
+  }
+  .site-footer__label img {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+  }
+  .site-footer__title {
+    margin-bottom: 16px;
+    font-family: var(--font-sans);
+    font-size: var(--fs-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #3f5538;
+  }
+  .site-footer__title--social {
+    margin-top: 32px;
+  }
+  address {
+    font-style: normal;
+    display: grid;
+    gap: 16px;
+  }
+  .site-footer__meta {
+    display: block;
+    font-weight: 600;
+  }
+  .site-footer__direct {
+    display: grid;
+    gap: 2px;
+  }
+  .site-footer a {
+    text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  }
+  .site-footer__direct a,
+  .site-footer__social a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    text-decoration: none;
+  }
+  .site-footer__direct a:hover,
+  .site-footer__social a:hover {
+    text-decoration: underline;
+  }
+  .site-footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  #footer-nav li a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+  }
+  #footer-nav li a:hover {
+    text-decoration: underline;
+  }
+  .site-footer__recruit :global(.text-link) {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    font-weight: 500;
+  }
+  .site-footer__bar {
+    background: var(--c-pine);
+    color: var(--c-on-dark);
+    --focus: var(--c-on-dark);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .site-footer__bar-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 24px;
+    padding-block: 16px;
+  }
+  .site-footer__bar a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  @media (max-width: 767px) {
+    /* Platz für den mobilen Anfrage-Button, damit nichts verdeckt bleibt */
+    .site-footer__bar {
+      padding-bottom: calc(88px + env(safe-area-inset-bottom));
+    }
+  }
+</style>

@@ -1,0 +1,83 @@
+---
+/** Einstieg für Unterseiten: Eyebrow, H1, Lead und optional ein grosses Bild */
+import Media from './Media.astro';
+import type { MediaId } from '../data/media';
+
+interface Props {
+  eyebrow: string;
+  /** Ein Array setzt bewusste Zeilenumbrüche (z. B. nach einem Satz) */
+  title: string | string[];
+  lead?: string;
+  image?: MediaId;
+  imageFocus?: string;
+  /** Kleinere H1 für Titel mit langen Wörtern */
+  compact?: boolean;
+  theme?: 'light' | 'pine';
+}
+const { eyebrow, title, lead, image, imageFocus, compact = false, theme = 'light' } = Astro.props;
+---
+
+<section class:list={['intro', { 'theme-pine': theme === 'pine', 'intro--image': image }]} data-intro>
+  <div class="container intro__inner">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 class:list={['display', 'intro__title', { 'intro__title--compact': compact }]}>
+      {Array.isArray(title) ? title.map((line) => <span class="intro__line">{line} </span>) : title}
+    </h1>
+    {lead && <p class="lead intro__lead">{lead}</p>}
+    <slot />
+  </div>
+  {
+    image && (
+      <div class="container intro__media">
+        <div class="frame intro__frame">
+          <Media id={image} sizes="(min-width: 1600px) 1440px, (min-width: 1100px) calc(100vw - 160px), calc(100vw - 44px)" widths={[640, 960, 1280, 1680, 2200]} priority focus={imageFocus} />
+        </div>
+      </div>
+    )
+  }
+  <slot name="after" />
+</section>
+
+<style>
+  .intro {
+    position: relative;
+    padding-block: clamp(56px, 9vw, 144px) clamp(56px, 8vw, 120px);
+    overflow: hidden;
+  }
+  .intro--image {
+    padding-bottom: 0;
+  }
+  .intro__inner {
+    position: relative;
+    z-index: 1;
+  }
+  .intro__title {
+    margin-top: 24px;
+    max-width: 14ch;
+  }
+  .intro__line {
+    display: block;
+  }
+  .intro__title:has(.intro__line) {
+    max-width: none;
+  }
+  .intro__title--compact {
+    font-size: clamp(2.5rem, 6.2vw + 1.2rem, 7.5rem);
+    hyphens: manual;
+  }
+  .intro__lead {
+    margin-top: clamp(24px, 3vw, 40px);
+    max-width: 34ch;
+  }
+  .intro__media {
+    margin-top: clamp(48px, 6vw, 96px);
+  }
+  .intro__frame {
+    aspect-ratio: 16 / 9;
+  }
+  @media (max-width: 699px) {
+    .intro__frame {
+      aspect-ratio: 4 / 3;
+    }
+  }
+</style>

@@ -1,0 +1,44 @@
+---
+import { getLocalImage, getMediaItem } from '../lib/media';
+
+interface Props {
+  class?: string;
+  /** Ganzer Link zur Startseite? */
+  link?: boolean;
+  priority?: boolean;
+}
+
+const { class: className, link = true, priority = false } = Astro.props;
+const item = getMediaItem('logo');
+const local = getLocalImage('logo');
+// Originaldatei unverändert ausliefern (keine Neukodierung des Logos).
+const src = local ? local.src : item.src;
+const Tag = link ? 'a' : 'span';
+---
+
+<Tag class:list={['logo', className]} {...(link ? { href: '/', 'aria-label': 'artenreich – zur Startseite' } : {})}>
+  <img
+    src={src}
+    width={local?.width}
+    height={local?.height}
+    alt={link ? '' : item.alt}
+    loading={priority ? 'eager' : 'lazy'}
+    decoding="async"
+    referrerpolicy={local ? undefined : 'no-referrer'}
+  />
+</Tag>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border-radius: 2px;
+  }
+  .logo img {
+    display: block;
+    height: var(--logo-h, 44px);
+    width: auto;
+    max-width: none;
+  }
+</style>

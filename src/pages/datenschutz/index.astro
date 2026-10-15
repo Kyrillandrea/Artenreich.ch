@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import * as privacy from '../../content/datenschutz.md';
+import { company, links } from '../../data/site';
+
+const verified = privacy.frontmatter.verified === true;
+const Content = privacy.Content;
+---
+
+<BaseLayout
+  title="Datenschutz"
+  description="Datenschutzerklärung der ARTENREICH BOLINGER GÄRTEN AG, Kloten."
+  stickyCta={false}
+>
+  <PageIntro eyebrow="Rechtliches" title="Datenschutz" />
+  <section class="section privacy" aria-label="Datenschutzerklärung">
+    <div class="container privacy__inner">
+      {
+        verified ? (
+          <div class="privacy__text">
+            <Content />
+          </div>
+        ) : (
+          <div class="privacy__text">
+            <p>
+              Die geltende Datenschutzerklärung der {company.legalName} finden Sie unter{' '}
+              <a href={links.privacySource}>artenreich.ch/datenschutz</a>.
+            </p>
+            <h2>Kontakt für Fragen zum Datenschutz</h2>
+            <address>
+              {company.legalName}
+              <br />
+              {company.office.street}
+              <br />
+              {company.office.postalCode} {company.office.locality}
+              <br />
+              <a href={company.email.href}>{company.email.display}</a>
+              <br />
+              <a href={company.phone.href}>{company.phone.display}</a>
+            </address>
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .privacy {
+    padding-top: 0;
+  }
+  .privacy__text {
+    max-width: 68ch;
+  }
+  .privacy__text :global(h2) {
+    margin: 2em 0 0.6em;
+    font-size: clamp(1.75rem, 1vw + 1.4rem, 2.25rem);
+  }
+  .privacy__text :global(h3) {
+    margin: 1.6em 0 0.5em;
+    font-size: 1.5rem;
+  }
+  .privacy__text :global(p),
+  .privacy__text :global(ul),
+  .privacy__text :global(ol) {
+    margin-top: 1em;
+  }
+  .privacy__text address {
+    font-style: normal;
+    margin-top: 1em;
+  }
+</style>

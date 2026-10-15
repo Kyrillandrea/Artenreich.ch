@@ -1,0 +1,153 @@
+---
+/** Startseite, Kapitel 7: echte Menschen und Recruiting */
+import Media from './Media.astro';
+import Icon from './Icon.astro';
+import { team, teamQuote } from '../data/team';
+import { links } from '../data/site';
+---
+
+<section class="crew section theme-pine" id="team" aria-labelledby="crew-title">
+  <div class="container grid-12 crew__grid">
+    <div class="crew__head" data-reveal>
+      <p class="eyebrow">Über uns</p>
+      <h2 id="crew-title" class="h2 crew__title">Mit der Natur verbunden. <span class="crew__soft">Als Team verwurzelt.</span></h2>
+    </div>
+
+    <figure class="crew__quote" data-reveal style="--reveal-delay:120ms">
+      <blockquote>
+        <p>«{teamQuote.text}»</p>
+      </blockquote>
+      <figcaption>{teamQuote.author}</figcaption>
+    </figure>
+
+    <ul class="crew__people" aria-label="Unser Team">
+      {
+        team.map((member, i) => (
+          <li data-reveal style={`--reveal-delay:${(i % 7) * 50}ms`}>
+            <a href={`/team/#${member.id}`} class="crew__person">
+              <span class="frame crew__portrait">
+                <Media id={member.portrait} sizes="(min-width: 1100px) 160px, (min-width: 600px) 22vw, 30vw" widths={[200, 320, 480]} alt="" />
+              </span>
+              <span class="crew__name">{member.name}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="crew__actions" data-reveal>
+      <a class="btn" href="/team/">
+        Das ganze Team kennenlernen
+        <Icon name="arrow-right" />
+      </a>
+      <a class="text-link" href={links.recruiting.href} rel="noopener">
+        {links.recruiting.label}
+        <Icon name="arrow-up-right" size={18} />
+        <span class="sr-only">(externe Recruiting-Website)</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .crew__grid {
+    row-gap: clamp(40px, 5vw, 72px);
+  }
+  .crew__head,
+  .crew__quote,
+  .crew__people,
+  .crew__actions {
+    grid-column: 1 / -1;
+  }
+  .crew__title {
+    margin-top: 20px;
+  }
+  .crew__soft {
+    display: block;
+    font-style: italic;
+    color: var(--c-sage);
+  }
+  .crew__quote blockquote p {
+    font-family: var(--font-serif);
+    font-size: var(--fs-lead);
+    line-height: 1.32;
+    max-width: 30ch;
+  }
+  .crew__quote figcaption {
+    margin-top: 16px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--fg-muted);
+  }
+  .crew__people {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+  @media (min-width: 480px) {
+    .crew__people {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .crew__person {
+    display: grid;
+    gap: 10px;
+    text-decoration: none;
+    border-radius: var(--radius);
+  }
+  .crew__portrait {
+    display: block;
+    aspect-ratio: 1;
+  }
+  .crew__portrait :global(img) {
+    object-position: 50% 30%;
+    transition: transform 900ms var(--ease-out);
+  }
+  .crew__person:hover .crew__portrait :global(img),
+  .crew__person:focus-visible .crew__portrait :global(img) {
+    transform: scale(1.025);
+  }
+  .crew__name {
+    overflow-wrap: break-word;
+    font-size: var(--fs-small);
+    line-height: 1.35;
+    font-weight: 500;
+  }
+  .crew__person:hover .crew__name {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .crew__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 32px;
+  }
+
+  @media (min-width: 600px) {
+    .crew__people {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 900px) {
+    .crew__head {
+      grid-column: 1 / span 7;
+    }
+    .crew__quote {
+      grid-column: 8 / -1;
+      align-self: end;
+    }
+    .crew__people {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .crew__portrait :global(img) {
+      transition: none;
+    }
+  }
+</style>

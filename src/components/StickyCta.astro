@@ -1,0 +1,65 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  href: string;
+  projekt?: string;
+}
+const { href, projekt } = Astro.props;
+---
+
+<a class="sticky-cta" href={href} data-sticky-cta data-projekt={projekt} hidden>
+  Projekt anfragen
+  <Icon name="arrow-right" size={18} />
+</a>
+
+<style>
+  .sticky-cta {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    background: var(--c-pine);
+    color: var(--c-on-dark);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 10px 30px -12px rgba(20, 43, 35, 0.55);
+    transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out);
+    --focus: var(--c-pine);
+  }
+  .sticky-cta[hidden] {
+    display: none;
+  }
+  .sticky-cta.is-away {
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out),
+      visibility 0s linear var(--dur-mid);
+  }
+  @media (min-width: 768px) {
+    .sticky-cta {
+      display: none !important;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sticky-cta,
+    .sticky-cta.is-away {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { initStickyCta } from '../scripts/sticky-cta';
+  initStickyCta();
+</script>

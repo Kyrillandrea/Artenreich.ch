@@ -1,0 +1,130 @@
+---
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import StickyCta from '../components/StickyCta.astro';
+import { seo, company, links } from '../data/site';
+import { getLocalImage, getMediaItem } from '../lib/media';
+import type { MediaId } from '../data/media';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Seiten ohne Suchmaschinen-Indexierung (z. B. Danke-Seite, 404) */
+  noindex?: boolean;
+  ogImage?: MediaId;
+  /** Ziel des mobilen Anfrage-Buttons; false blendet ihn aus */
+  stickyCta?: { href: string; projekt?: string } | false;
+  jsonLd?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description = seo.defaultDescription,
+  noindex = false,
+  ogImage = 'galerie-03',
+  stickyCta = { href: '/kontakt/#anfrage' },
+  jsonLd = [],
+} = Astro.props;
+
+const indexing = import.meta.env.PUBLIC_INDEXING === 'true';
+const robots = indexing && !noindex ? 'index, follow' : 'noindex, nofollow';
+const fullTitle = title ? `${title} | ${seo.siteName}` : seo.defaultTitle;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const ogLocal = getLocalImage(ogImage);
+const ogUrl = ogLocal
+  ? new URL((await getImage({ src: ogLocal, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src, Astro.site).href
+  : getMediaItem(ogImage).src;
+
+const logoLocal = getLocalImage('logo');
+const logoUrl = logoLocal ? new URL(logoLocal.src, Astro.site).href : getMediaItem('logo').src;
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'HomeAndConstructionBusiness',
+  '@id': `${Astro.site?.href}#organisation`,
+  name: company.brand,
+  legalName: company.legalName,
+  url: Astro.site?.href,
+  logo: logoUrl,
+  image: ogUrl,
+  email: company.email.address,
+  telephone: company.phone.display,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: company.office.street,
+    postalCode: company.office.postalCode,
+    addressLocality: company.office.locality,
+    addressCountry: company.office.countryCode,
+  },
+  hasMap: links.map.href,
+  sameAs: [links.instagram.href, links.facebook.href],
+};
+const schemas = [organization, ...jsonLd];
+---
+
+<!doctype html>
+<html lang="de-CH" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline>
+      document.documentElement.classList.replace('no-js', 'js');
+    </script>
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#f4f1e9" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="data:," />
+
+    <link rel="preload" href="/fonts/cormorant-garamond-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={seo.locale} />
+    <meta property="og:site_name" content={seo.siteName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {schemas.map((schema) => <script type="application/ld+json" set:html={JSON.stringify(schema)} />)}
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+    <Header />
+    <main id="inhalt" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    {stickyCta && <StickyCta href={stickyCta.href} projekt={stickyCta.projekt} />}
+
+    <script>
+      import { initReveal } from '../scripts/reveal';
+      import { initParallax } from '../scripts/parallax';
+      initReveal();
+      initParallax();
+
+      // Skip-Link: Fokus zuverlässig auf den Hauptinhalt setzen (alle Browser)
+      document.querySelector('.skip-link')?.addEventListener('click', (event) => {
+        const main = document.getElementById('inhalt');
+        if (!main) return;
+        event.preventDefault();
+        main.focus({ preventScroll: true });
+        main.scrollIntoView({ block: 'start' });
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  main:focus {
+    outline: none;
+  }
+</style>

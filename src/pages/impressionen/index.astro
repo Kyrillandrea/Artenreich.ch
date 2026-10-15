@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import GalleryGrid from '../../components/GalleryGrid.astro';
+import CtaBand from '../../components/CtaBand.astro';
+---
+
+<BaseLayout
+  title="Impressionen aus Naturgärten"
+  description="Impressionen von Artenreich: Stauden, Sitzplätze, Natursteine, Wasser und die Tiere, die in Naturgärten ein Zuhause finden."
+  ogImage="galerie-01"
+>
+  <PageIntro eyebrow="Impressionen" title="Gärten, die leben." />
+  <section class="section impressions" aria-label="Alle Aufnahmen">
+    <div class="container">
+      <GalleryGrid />
+    </div>
+  </section>
+  <CtaBand href="/kontakt/#anfrage" label="Projekt anfragen" />
+</BaseLayout>
+
+<style>
+  .impressions {
+    padding-top: 0;
+  }
+</style>

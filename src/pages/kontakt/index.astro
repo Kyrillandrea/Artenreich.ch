@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import InquiryForm from '../../components/InquiryForm.astro';
+import Icon from '../../components/Icon.astro';
+import { company, links } from '../../data/site';
+
+const contactSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Kontakt',
+  url: new URL('/kontakt/', Astro.site).href,
+  about: { '@id': `${Astro.site?.href}#organisation` },
+};
+---
+
+<BaseLayout
+  title="Kontakt und Anfrage"
+  description="Kontakt zu Artenreich in Kloten: Dorfstrasse 63, Telefon +41 43 244 20 00, info@artenreich.ch – oder direkt Ihr Projekt anfragen."
+  stickyCta={{ href: '#anfrage' }}
+  jsonLd={[contactSchema]}
+>
+  <PageIntro eyebrow="Kontakt" title="Was darf bei Ihnen wachsen?" compact>
+    <p class="contact-lead">Erzählen Sie uns von Ihrem Vorhaben – über das Formular, per Telefon oder E-Mail.</p>
+  </PageIntro>
+
+  <section class="contact" aria-labelledby="contact-title">
+    <div class="container">
+      <h2 id="contact-title" class="sr-only">Kontaktangaben</h2>
+      <ul class="contact__grid">
+        <li class="contact__card" data-reveal>
+          <h3 class="contact__label">Telefon</h3>
+          <a class="contact__big" href={company.phone.href}>{company.phone.display}</a>
+          <h3 class="contact__label contact__label--gap">E-Mail</h3>
+          <a class="contact__big" href={company.email.href}>{company.email.display}</a>
+        </li>
+        <li class="contact__card" data-reveal style="--reveal-delay:80ms">
+          <h3 class="contact__label">{company.office.label}</h3>
+          <address>
+            {company.legalName}<br />
+            {company.office.street}<br />
+            {company.office.postalCode} {company.office.locality}<br />
+            {company.office.country}
+          </address>
+          <p class="contact__person">Ansprechperson: {company.contactPerson}</p>
+          <a class="text-link" href={links.map.href} rel="noopener">
+            <Icon name="pin" size={18} />
+            {links.map.label}
+          </a>
+        </li>
+        <li class="contact__card" data-reveal style="--reveal-delay:160ms">
+          <h3 class="contact__label">{company.depot.label}</h3>
+          <address>
+            {company.depot.street}<br />
+            {company.depot.postalCode} {company.depot.locality}
+          </address>
+          <h3 class="contact__label contact__label--gap">Folgen</h3>
+          <ul class="contact__social">
+            <li><a href={links.instagram.href} rel="noopener"><Icon name="instagram" />{links.instagram.label}</a></li>
+            <li><a href={links.facebook.href} rel="noopener"><Icon name="facebook" />{links.facebook.label}</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section contact-form" id="anfrage" aria-labelledby="anfrage-title" data-inquiry>
+    <div class="container grid-12 contact-form__grid">
+      <div class="contact-form__head">
+        <p class="eyebrow">Anfrage</p>
+        <h2 id="anfrage-title" class="h2">Projekt anfragen</h2>
+        <p class="muted contact-form__hint">
+          Projektart, Region und eine kurze Beschreibung reichen für den Einstieg. Pläne und Fotos können bei Bedarf später ergänzt werden.
+        </p>
+      </div>
+      <div class="contact-form__form">
+        <InquiryForm />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-lead {
+    margin-top: clamp(24px, 3vw, 40px);
+    max-width: 40ch;
+    font-size: clamp(1.125rem, 0.4vw + 1rem, 1.3125rem);
+    color: var(--fg-muted);
+  }
+  .contact__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .contact__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--col-gap);
+    }
+  }
+  .contact__card {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding: clamp(24px, 3vw, 40px);
+    background: var(--c-paper);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius);
+  }
+  .contact__label {
+    font-family: var(--font-sans);
+    font-size: var(--fs-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .contact__label--gap {
+    margin-top: 24px;
+  }
+  .contact__big {
+    font-family: var(--font-serif);
+    font-variant-numeric: lining-nums;
+    font-size: clamp(1.625rem, 1vw + 1.25rem, 2.25rem);
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .contact__big:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  address {
+    font-style: normal;
+  }
+  .contact__person {
+    margin-top: 8px;
+  }
+  .contact__social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .contact__social a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    text-decoration: none;
+  }
+  .contact__social a:hover {
+    text-decoration: underline;
+  }
+
+  .contact-form__grid {
+    row-gap: 48px;
+  }
+  .contact-form__head,
+  .contact-form__form {
+    grid-column: 1 / -1;
+  }
+  .contact-form__head h2 {
+    margin-top: 20px;
+  }
+  .contact-form__hint {
+    margin-top: 24px;
+    max-width: 36ch;
+  }
+  @media (min-width: 1000px) {
+    .contact-form__head {
+      grid-column: 1 / span 4;
+      position: sticky;
+      top: calc(var(--header-h) + 40px);
+      align-self: start;
+    }
+    .contact-form__form {
+      grid-column: 6 / -1;
+    }
+  }
+</style>

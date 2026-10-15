@@ -1,0 +1,74 @@
+---
+import { getImage } from 'astro:assets';
+import type { MediaId } from '../data/media';
+import { getLocalImage, getMediaItem } from '../lib/media';
+
+interface Props {
+  id: MediaId;
+  /** `sizes`-Attribut passend zum Layout */
+  sizes: string;
+  /** Kandidatenbreiten für srcset */
+  widths?: number[];
+  loading?: 'lazy' | 'eager';
+  priority?: boolean;
+  /** Überschreibt den Alt-Text, z. B. '' für dekorative Verwendung */
+  alt?: string;
+  class?: string;
+  /** CSS object-position */
+  focus?: string;
+}
+
+const {
+  id,
+  sizes,
+  widths = [480, 768, 1080, 1440, 1920],
+  loading = 'lazy',
+  priority = false,
+  alt,
+  class: className,
+  focus,
+} = Astro.props;
+
+const item = getMediaItem(id);
+const altText = alt ?? item.alt;
+const local = getLocalImage(id);
+const objectPosition = focus ?? item.focus;
+const style = objectPosition ? `object-position:${objectPosition}` : undefined;
+
+let sources: { type: string; srcset: string }[] = [];
+let fallback: { src: string; srcset?: string; width?: number; height?: number } = {
+  src: item.src,
+  width: item.width,
+  height: item.height,
+};
+
+if (local) {
+  const usable = widths.filter((w) => w <= local.width);
+  const candidateWidths = usable.length ? usable : [local.width];
+  const build = async (format: 'avif' | 'webp' | 'jpg') =>
+    getImage({ src: local, widths: candidateWidths, format, quality: format === 'avif' ? 55 : 72 });
+  const [avif, webp, jpg] = await Promise.all([build('avif'), build('webp'), build('jpg')]);
+  sources = [
+    { type: 'image/avif', srcset: avif.srcSet.attribute },
+    { type: 'image/webp', srcset: webp.srcSet.attribute },
+  ];
+  fallback = { src: jpg.src, srcset: jpg.srcSet.attribute, width: local.width, height: local.height };
+}
+---
+
+<picture class:list={['media', className]} data-media-id={id}>
+  {sources.map((s) => <source type={s.type} srcset={s.srcset} sizes={sizes} />)}
+  <img
+    src={fallback.src}
+    srcset={fallback.srcset}
+    sizes={fallback.srcset ? sizes : undefined}
+    width={fallback.width}
+    height={fallback.height}
+    alt={altText}
+    loading={priority ? 'eager' : loading}
+    decoding={priority ? 'sync' : 'async'}
+    fetchpriority={priority ? 'high' : undefined}
+    referrerpolicy={local ? undefined : 'no-referrer'}
+    style={style}
+  />
+</picture>

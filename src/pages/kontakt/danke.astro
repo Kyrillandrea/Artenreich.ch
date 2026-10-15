@@ -1,0 +1,52 @@
+---
+/**
+ * Bestätigung nach Formularversand ohne JavaScript.
+ * Serverseitig gerendert: Die Bestätigung erscheint nur, wenn der Server die Anfrage
+ * unmittelbar zuvor tatsächlich angenommen hat (kurzlebiges, technisch notwendiges Cookie).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import Icon from '../../components/Icon.astro';
+import { company } from '../../data/site';
+
+export const prerender = false;
+
+const accepted = Astro.cookies.get('anfrage_ok')?.value === '1';
+if (accepted) Astro.cookies.delete('anfrage_ok', { path: '/kontakt/danke/' });
+Astro.response.headers.set('cache-control', 'no-store');
+---
+
+<BaseLayout title={accepted ? 'Vielen Dank' : 'Kontakt'} noindex stickyCta={false}>
+  {
+    accepted ? (
+      <PageIntro eyebrow="Anfrage übermittelt" title="Vielen Dank." lead="Ihre Anfrage ist bei uns eingegangen.">
+        <p class="thanks-text">
+          Bei Fragen erreichen Sie uns unter <a href={company.phone.href}>{company.phone.display}</a> oder{' '}
+          <a href={company.email.href}>{company.email.display}</a>.
+        </p>
+        <a class="text-link" href="/">
+          Zur Startseite
+          <Icon name="arrow-right" size={18} />
+        </a>
+      </PageIntro>
+    ) : (
+      <PageIntro eyebrow="Kontakt" title="Projekt anfragen" lead="Über das Anfrageformular erreichen Sie uns direkt.">
+        <a class="btn thanks-btn" href="/kontakt/#anfrage">
+          Zum Anfrageformular
+          <Icon name="arrow-right" />
+        </a>
+      </PageIntro>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .thanks-text {
+    margin-top: 24px;
+    max-width: 44ch;
+    color: var(--fg-muted);
+  }
+  .thanks-btn {
+    margin-top: 32px;
+  }
+</style>

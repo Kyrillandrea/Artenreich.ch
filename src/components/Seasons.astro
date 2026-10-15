@@ -1,0 +1,256 @@
+---
+/**
+ * «Ein Garten. Vier Jahreszeiten.»
+ * Ohne Skript und auf Mobil: vier ruhige Kapitel untereinander.
+ * Ab 900 px mit Skript: beschriftete, tastaturbedienbare Auswahl (ARIA-Tabs) und
+ * organischer Bildwechsel (ca. 800 ms); der Text bleibt stabil.
+ */
+import Media from './Media.astro';
+import { seasons } from '../data/content';
+
+interface Props {
+  id?: string;
+}
+const { id = 'jahreszeiten' } = Astro.props;
+---
+
+<section class="seasons section theme-sand" id={id} aria-labelledby={`${id}-title`} data-seasons>
+  <div class="container">
+    <div class="seasons__head" data-reveal>
+      <p class="eyebrow">Im Wandel</p>
+      <h2 id={`${id}-title`} class="h2 seasons__title">Ein Garten. <em>Vier</em> Jahreszeiten.</h2>
+    </div>
+
+    <div class="seasons__tablist" role="tablist" aria-label="Jahreszeit wählen" data-seasons-tablist hidden>
+      {
+        seasons.map((season, i) => (
+          <button
+            class="seasons__tab"
+            type="button"
+            role="tab"
+            id={`${id}-tab-${season.id}`}
+            aria-controls={`${id}-panel-${season.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            data-index={i}
+          >
+            <span class="seasons__tab-num" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            {season.title}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="seasons__stage" data-seasons-stage>
+      {
+        seasons.map((season, i) => (
+          <article
+            class:list={['season', { 'is-active': i === 0 }]}
+            id={`${id}-panel-${season.id}`}
+            aria-labelledby={`${id}-heading-${season.id}`}
+            data-season
+          >
+            <div class="season__media frame">
+              <Media id={season.image} sizes="(min-width: 900px) 58vw, 100vw" />
+            </div>
+            <div class="season__text">
+              <h3 class="h3 season__title" id={`${id}-heading-${season.id}`}>
+                {season.title}
+              </h3>
+              <ul class="season__lines">
+                {season.lines.map((line) => (
+                  <li>{line}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .seasons__head {
+    margin-bottom: clamp(40px, 6vw, 80px);
+  }
+  .seasons__title {
+    margin-top: 20px;
+  }
+  .seasons__title em {
+    font-style: italic;
+    color: var(--c-sage-ink);
+  }
+
+  /* Grundzustand: vier Kapitel untereinander */
+  .seasons__stage {
+    display: grid;
+    gap: clamp(48px, 8vw, 80px);
+  }
+  .season {
+    display: grid;
+    gap: 20px;
+  }
+  .season__media {
+    aspect-ratio: 4 / 3;
+  }
+  .season__title {
+    font-size: clamp(2.25rem, 3vw + 1rem, 4rem);
+  }
+  .season__lines {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+  }
+  .season__lines li {
+    font-family: var(--font-serif);
+    font-size: clamp(1.375rem, 0.8vw + 1.1rem, 1.875rem);
+    line-height: 1.3;
+  }
+  .season__lines li::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    margin-right: 14px;
+    vertical-align: 0.32em;
+    background: var(--c-sage-ink);
+  }
+  @media (min-width: 700px) and (max-width: 899px) {
+    .season {
+      grid-template-columns: 3fr 2fr;
+      align-items: end;
+      gap: 28px;
+    }
+  }
+
+  /* Ausgebaute Bühne (nur mit Skript ab 900 px) */
+  .seasons__tablist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: clamp(28px, 3vw, 44px);
+    border-bottom: 1px solid var(--line);
+  }
+  .seasons__tablist[hidden] {
+    display: none;
+  }
+  .seasons__tab {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 12px;
+    min-height: 64px;
+    padding: 12px clamp(16px, 2.4vw, 40px) 16px 0;
+    margin-right: clamp(8px, 1.6vw, 24px);
+    border: 0;
+    background: none;
+    font-family: var(--font-serif);
+    font-size: clamp(1.75rem, 1.6vw + 1rem, 2.75rem);
+    font-weight: 500;
+    line-height: 1.1;
+    color: #535b55;
+    transition: color var(--dur-mid) var(--ease-out);
+  }
+  .seasons__tab-num {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+  .seasons__tab::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: clamp(16px, 2.4vw, 40px);
+    bottom: -1px;
+    height: 2px;
+    background: var(--c-pine);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 600ms var(--ease-out);
+  }
+  .seasons__tab:hover {
+    color: var(--c-ink);
+  }
+  .seasons__tab[aria-selected='true'] {
+    color: var(--c-pine);
+  }
+  .seasons__tab[aria-selected='true']::after {
+    transform: scaleX(1);
+  }
+
+  .seasons.is-tabs .seasons__stage {
+    display: grid;
+    gap: 0;
+  }
+  .seasons.is-tabs .season {
+    grid-area: 1 / 1;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(32px, 5vw, 96px);
+    align-items: end;
+    visibility: hidden;
+  }
+  .seasons.is-tabs .season.is-active,
+  .seasons.is-tabs .season.is-leaving {
+    visibility: visible;
+  }
+  .seasons.is-tabs .season.is-active {
+    z-index: 2;
+  }
+  .seasons.is-tabs .season.is-leaving {
+    z-index: 1;
+  }
+  .seasons.is-tabs .season__media {
+    aspect-ratio: 16 / 11;
+  }
+  /* Nur das aktive Kapitel zeigt Text – kein Überlagern beim Wechsel */
+  .seasons.is-tabs .season.is-leaving .season__text {
+    visibility: hidden;
+  }
+  .seasons.is-tabs .season__text {
+    padding-bottom: 12px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .seasons.is-tabs .season.is-entering .season__media {
+      animation: season-reveal 820ms cubic-bezier(0.6, 0.05, 0.25, 1) both;
+    }
+    .seasons.is-tabs .season.is-entering .season__media :global(img) {
+      animation: season-settle 1100ms var(--ease-out) both;
+    }
+    .seasons.is-tabs .season.is-entering .season__text {
+      animation: season-text 420ms ease both;
+    }
+    @keyframes season-reveal {
+      from {
+        clip-path: circle(0% at var(--origin-x, 20%) 70%);
+      }
+      to {
+        clip-path: circle(150% at var(--origin-x, 20%) 70%);
+      }
+    }
+    @keyframes season-settle {
+      from {
+        transform: scale(1.06);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+    @keyframes season-text {
+      from {
+        opacity: 0;
+      }
+    }
+  }
+</style>
+
+<script>
+  import { initSeasons } from '../scripts/seasons';
+  initSeasons();
+</script>

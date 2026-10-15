@@ -1,0 +1,327 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { nav, primaryCta, company } from '../data/site';
+
+const current = Astro.url.pathname;
+const isCurrent = (href: string) => current === href || (href !== '/' && current.startsWith(href));
+---
+
+<header class="site-header" data-header>
+  <div class="site-header__inner container">
+    <Logo class="site-header__logo" priority />
+
+    <nav class="site-nav" aria-label="Hauptnavigation">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="btn site-header__cta" href={primaryCta.href} data-cta>
+      {primaryCta.label}
+    </a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+      aria-controls="menu-dialog"
+      data-menu-open
+    >
+      <span>Menü</span>
+      <Icon name="menu" size={22} />
+    </button>
+    <a class="menu-toggle menu-toggle--nojs" href="#footer-nav">Menü</a>
+  </div>
+</header>
+
+<dialog class="menu-dialog" id="menu-dialog" aria-label="Menü" data-menu-dialog>
+  <div class="menu-dialog__top container">
+    <Logo link={false} />
+    <button class="menu-close" type="button" data-menu-close>
+      <span>Schliessen</span>
+      <Icon name="close" size={22} />
+    </button>
+  </div>
+  <nav class="menu-dialog__nav container" aria-label="Hauptnavigation (mobil)">
+    <ul>
+      {
+        nav.map((item) => (
+          <li>
+            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li><a href="/kontakt/" aria-current={isCurrent('/kontakt/') ? 'page' : undefined}>Kontakt</a></li>
+    </ul>
+    <a class="btn menu-dialog__cta" href={primaryCta.href} data-cta>
+      {primaryCta.label}
+      <Icon name="arrow-right" />
+    </a>
+    <div class="menu-dialog__contact">
+      <a href={company.phone.href}><Icon name="phone" /> {company.phone.display}</a>
+      <a href={company.email.href}><Icon name="mail" /> {company.email.display}</a>
+    </div>
+  </nav>
+</dialog>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--c-offwhite);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-mid) ease, box-shadow var(--dur-mid) ease;
+  }
+  :global(.is-scrolled) .site-header {
+    border-bottom-color: var(--c-line);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: var(--header-h);
+  }
+  .site-header :global(.site-header__logo) {
+    --logo-h: 40px;
+    margin-right: auto;
+  }
+  @media (min-width: 1100px) {
+    .site-header :global(.site-header__logo) {
+      --logo-h: 48px;
+    }
+  }
+
+  .site-nav {
+    display: none;
+  }
+  .site-nav ul {
+    display: flex;
+    gap: clamp(20px, 2.4vw, 40px);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 0.9875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+  }
+  .site-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-mid) var(--ease-out);
+  }
+  .site-nav a:hover::after,
+  .site-nav a[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+  .site-header__cta {
+    display: none;
+    min-height: 48px;
+    padding-inline: 22px;
+    font-size: 0.9375rem;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 4px 8px 12px;
+    border: 0;
+    background: none;
+    font-size: 0.9375rem;
+    font-weight: 550;
+    text-decoration: none;
+  }
+  .menu-toggle--nojs {
+    display: none;
+  }
+  :global(.no-js) .menu-toggle:not(.menu-toggle--nojs) {
+    display: none;
+  }
+  :global(.no-js) .menu-toggle--nojs {
+    display: inline-flex;
+  }
+
+  @media (min-width: 1024px) {
+    .site-nav,
+    .site-header__cta {
+      display: inline-flex;
+    }
+    .menu-toggle,
+    :global(.no-js) .menu-toggle--nojs {
+      display: none;
+    }
+  }
+
+  /* Mobiles Menü */
+  .menu-dialog {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0 0 max(24px, env(safe-area-inset-bottom));
+    border: 0;
+    background: var(--c-offwhite);
+    color: var(--c-ink);
+    overflow-y: auto;
+  }
+  .menu-dialog::backdrop {
+    background: rgba(20, 43, 35, 0.4);
+  }
+  .menu-dialog[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .menu-dialog[open] {
+      animation: menu-in 360ms var(--ease-out);
+    }
+    @keyframes menu-in {
+      from {
+        opacity: 0;
+        transform: translateY(-12px);
+      }
+    }
+  }
+  .menu-dialog__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-h);
+    --logo-h: 40px;
+    flex: none;
+  }
+  .menu-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 4px 8px 12px;
+    border: 0;
+    background: none;
+    font-size: 0.9375rem;
+    font-weight: 550;
+  }
+  .menu-dialog__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-top: clamp(24px, 6vh, 64px);
+  }
+  .menu-dialog__nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--c-line);
+  }
+  .menu-dialog__nav li {
+    border-bottom: 1px solid var(--c-line);
+  }
+  .menu-dialog__nav li a {
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    padding-block: 8px;
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 8vw, 2.75rem);
+    font-weight: 500;
+    line-height: 1.1;
+    text-decoration: none;
+  }
+  .menu-dialog__nav li a[aria-current='page'] {
+    color: var(--c-sage-ink);
+  }
+  .menu-dialog__cta {
+    align-self: flex-start;
+  }
+  .menu-dialog__contact {
+    display: grid;
+    gap: 4px;
+  }
+  .menu-dialog__contact a {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    text-decoration: none;
+    font-weight: 500;
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-menu-dialog]');
+  const opener = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  const closer = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+
+  if (dialog && opener && closer) {
+    const close = () => dialog.close();
+    opener.addEventListener('click', () => {
+      dialog.showModal();
+      opener.setAttribute('aria-expanded', 'true');
+      document.documentElement.classList.add('menu-open');
+    });
+    closer.addEventListener('click', close);
+    dialog.addEventListener('close', () => {
+      opener.setAttribute('aria-expanded', 'false');
+      document.documentElement.classList.remove('menu-open');
+      opener.focus();
+    });
+    // Klick auf einen Link schliesst das Menü (auch bei Sprungmarken auf derselben Seite)
+    dialog.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('a')) close();
+    });
+    // Beim Wechsel auf die Desktop-Breite automatisch schliessen
+    window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+      if (e.matches && dialog.open) close();
+    });
+  }
+
+  // Dezente Trennlinie nach dem ersten Scrollen
+  const root = document.documentElement;
+  let ticking = false;
+  const update = () => {
+    root.classList.toggle('is-scrolled', window.scrollY > 8);
+    ticking = false;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    },
+    { passive: true },
+  );
+  update();
+</script>

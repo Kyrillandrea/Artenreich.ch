@@ -1,0 +1,280 @@
+---
+import Media from './Media.astro';
+import Icon from './Icon.astro';
+import { hero } from '../data/content';
+import { getLocalImage, getMediaItem } from '../lib/media';
+import { getImage } from 'astro:assets';
+
+const video = hero.video;
+let poster: string | undefined;
+if (video) {
+  const local = getLocalImage(video.poster);
+  poster = local ? (await getImage({ src: local, width: 1920, format: 'webp' })).src : getMediaItem(video.poster).src;
+}
+---
+
+<section class="hero" data-intro aria-labelledby="hero-title">
+  <div class="hero__stage">
+    <div class="hero__media">
+      <div class="hero__layer hero__layer--main">
+        <Media id={hero.layers.main} sizes="100vw" widths={[640, 960, 1280, 1680, 2200]} priority focus="50% 60%" />
+      </div>
+      {
+        video && (
+          <video
+            class="hero__video"
+            muted
+            playsinline
+            loop
+            preload="none"
+            poster={poster}
+            aria-hidden="true"
+            data-hero-video
+          >
+            {video.sources.map((s) => (
+              <source src={s.src} type={s.type} media={s.media} />
+            ))}
+          </video>
+        )
+      }
+      <div class="hero__shade" aria-hidden="true"></div>
+    </div>
+
+    <div class="hero__content container">
+      <h1 id="hero-title" class="display hero__title">
+        <span class="hero__line">{hero.title[0]}</span>
+        <span class="hero__line">{hero.title[1]}</span>
+      </h1>
+      <p class="hero__subtitle">{hero.subtitle}</p>
+      <div class="hero__actions">
+        <a class="btn btn--light" href="#anfrage" data-projekt={hero.primary.projekt}>
+          {hero.primary.label}
+          <Icon name="arrow-right" />
+        </a>
+        <a class="btn btn--ghost hero__ghost" href={hero.secondary.href}>
+          {hero.secondary.label}
+        </a>
+      </div>
+      {
+        video && (
+          <button class="hero__video-toggle" type="button" data-hero-video-toggle hidden>
+            Film anhalten
+          </button>
+        )
+      }
+    </div>
+
+    <div class="hero__detail" aria-hidden="true">
+      <div class="hero__detail-move" data-parallax="0.09">
+        <div class="hero__detail-frame">
+          <Media id={hero.layers.detail} sizes="(min-width: 1100px) 22vw, 30vw" widths={[320, 480, 640, 900]} alt="" loading="eager" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    background: var(--c-offwhite);
+    padding-bottom: 0;
+  }
+  .hero__stage {
+    position: relative;
+    min-height: max(560px, calc(100svh - var(--header-h)));
+    display: flex;
+    align-items: flex-end;
+    isolation: isolate;
+  }
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--c-pine);
+    z-index: -1;
+  }
+  .hero__layer,
+  .hero__layer :global(.media),
+  .hero__layer :global(img),
+  .hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .hero__layer :global(img),
+  .hero__video {
+    object-fit: cover;
+  }
+  .hero__shade {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, rgba(20, 43, 35, 0.82) 0%, rgba(20, 43, 35, 0.5) 34%, rgba(20, 43, 35, 0.08) 68%, rgba(20, 43, 35, 0) 100%),
+      linear-gradient(to right, rgba(20, 43, 35, 0.38) 0%, rgba(20, 43, 35, 0) 58%);
+  }
+
+  .hero__content {
+    position: relative;
+    padding-block: clamp(96px, 16vh, 200px) clamp(40px, 7vh, 88px);
+    color: var(--c-on-dark);
+    --focus: var(--c-on-dark);
+  }
+  .hero__title {
+    font-weight: 600;
+    max-width: 12ch;
+    text-shadow: 0 1px 24px rgba(20, 43, 35, 0.35);
+  }
+  .hero__line {
+    display: block;
+  }
+  .hero__subtitle {
+    margin-top: clamp(20px, 2.4vw, 32px);
+    max-width: 34ch;
+    font-size: clamp(1.125rem, 0.6vw + 1rem, 1.375rem);
+    font-weight: 450;
+    line-height: 1.5;
+    color: #f8f5ee;
+    text-shadow: 0 1px 14px rgba(20, 43, 35, 0.45);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    margin-top: clamp(28px, 3vw, 44px);
+  }
+  .hero__ghost {
+    color: var(--c-on-dark);
+  }
+  .hero__video-toggle {
+    margin-top: 20px;
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid currentColor;
+    border-radius: var(--radius);
+    background: rgba(20, 43, 35, 0.4);
+    color: inherit;
+    font-size: var(--fs-small);
+  }
+
+  .hero__detail {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .hero__content {
+      padding-right: 30vw;
+    }
+    .hero__detail {
+      display: block;
+      position: absolute;
+      right: var(--gutter);
+      bottom: clamp(-120px, -7vw, -56px);
+      width: clamp(220px, 21vw, 340px);
+      z-index: 2;
+    }
+    .hero__detail-frame {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      border-radius: 50% 50% var(--radius) var(--radius) / 34% 34% var(--radius) var(--radius);
+      background: var(--c-pine-2);
+      box-shadow: 0 30px 60px -30px rgba(20, 43, 35, 0.6);
+    }
+    .hero__detail-frame :global(.media),
+    .hero__detail-frame :global(img) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  @media (min-width: 1100px) {
+    .hero__content {
+      padding-right: 0;
+    }
+    .hero__title {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .hero__actions .btn {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__layer--main :global(img) {
+      animation: hero-approach 3.2s var(--ease-out) both;
+    }
+    .hero__line,
+    .hero__subtitle,
+    .hero__actions {
+      animation: hero-rise 1s var(--ease-out) both;
+    }
+    .hero__line:nth-child(2) {
+      animation-delay: 120ms;
+    }
+    .hero__subtitle {
+      animation-delay: 260ms;
+    }
+    .hero__actions {
+      animation-delay: 380ms;
+    }
+    .hero__detail-frame {
+      animation: hero-detail 1.6s var(--ease-out) 200ms both;
+    }
+    @keyframes hero-approach {
+      from {
+        transform: scale(1.07);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+    @keyframes hero-rise {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+    @keyframes hero-detail {
+      from {
+        opacity: 0;
+        transform: translateY(28px);
+        clip-path: inset(18% 0 0 0 round 50% 50% 2px 2px);
+      }
+      to {
+        clip-path: inset(0 0 0 0 round 0);
+      }
+    }
+  }
+</style>
+
+<script>
+  // Nur aktiv, wenn ein freigegebenes Originalvideo eingetragen ist.
+  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-hero-video-toggle]');
+  if (video && toggle) {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    if (!reduced && !saveData) {
+      video.preload = 'auto';
+      video.play().then(
+        () => {
+          toggle.hidden = false;
+        },
+        () => {},
+      );
+      toggle.addEventListener('click', () => {
+        if (video.paused) {
+          video.play();
+          toggle.textContent = 'Film anhalten';
+        } else {
+          video.pause();
+          toggle.textContent = 'Film abspielen';
+        }
+      });
+    }
+  }
+</script>

@@ -1,0 +1,124 @@
+---
+/** «Was darf bei Ihnen wachsen?» – Anfrage und direkte Kontaktmöglichkeiten */
+import InquiryForm from './InquiryForm.astro';
+import Icon from './Icon.astro';
+import { company, links } from '../data/site';
+
+interface Props {
+  title?: string;
+  headingLevel?: 'h1' | 'h2';
+  intro?: string;
+  defaultProjekt?: string;
+  eyebrow?: string;
+}
+const {
+  title = 'Was darf bei Ihnen wachsen?',
+  headingLevel = 'h2',
+  intro = 'Erzählen Sie uns von Ihrem Vorhaben – über das Formular, per Telefon oder E-Mail.',
+  defaultProjekt,
+  eyebrow = 'Anfrage',
+} = Astro.props;
+const Heading = headingLevel;
+---
+
+<section class="ask section" id="anfrage" aria-labelledby="anfrage-title" data-inquiry>
+  <div class="container grid-12 ask__grid">
+    <div class="ask__aside">
+      <p class="eyebrow">{eyebrow}</p>
+      <Heading id="anfrage-title" class:list={['ask__title', headingLevel === 'h1' ? 'display' : 'h2']}>{title}</Heading>
+      <p class="ask__intro">{intro}</p>
+
+      <dl class="ask__contact">
+        <div>
+          <dt>Telefon</dt>
+          <dd><a href={company.phone.href}><Icon name="phone" size={18} />{company.phone.display}</a></dd>
+        </div>
+        <div>
+          <dt>E-Mail</dt>
+          <dd><a href={company.email.href}><Icon name="mail" size={18} />{company.email.display}</a></dd>
+        </div>
+        <div>
+          <dt>Ansprechperson</dt>
+          <dd class="ask__plain">{company.contactPerson}</dd>
+        </div>
+        <div>
+          <dt>{company.office.label}</dt>
+          <dd class="ask__plain">
+            {company.office.street}, {company.office.postalCode} {company.office.locality}
+            <a class="ask__map" href={links.map.href} rel="noopener"><Icon name="pin" size={18} />{links.map.label}</a>
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="ask__form">
+      <InquiryForm defaultProjekt={defaultProjekt} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .ask__grid {
+    row-gap: 56px;
+  }
+  .ask__aside,
+  .ask__form {
+    grid-column: 1 / -1;
+  }
+  .ask__title {
+    margin-top: 20px;
+    max-width: 11ch;
+  }
+  .ask__intro {
+    margin-top: 24px;
+    max-width: 36ch;
+    color: var(--fg-muted);
+  }
+  .ask__contact {
+    margin: 40px 0 0;
+    display: grid;
+    gap: 20px;
+    border-top: 1px solid var(--line);
+    padding-top: 28px;
+  }
+  .ask__contact dt {
+    font-size: var(--fs-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .ask__contact dd {
+    margin: 4px 0 0;
+  }
+  .ask__contact dd a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    font-weight: 550;
+    text-decoration: none;
+  }
+  .ask__contact dd a:hover {
+    text-decoration: underline;
+  }
+  .ask__plain {
+    padding-top: 6px;
+  }
+  .ask__map {
+    margin-top: 4px;
+    font-weight: 500 !important;
+  }
+
+  @media (min-width: 1000px) {
+    .ask__aside {
+      grid-column: 1 / span 4;
+      position: sticky;
+      top: calc(var(--header-h) + 40px);
+      align-self: start;
+    }
+    .ask__form {
+      grid-column: 6 / -1;
+    }
+  }
+</style>
